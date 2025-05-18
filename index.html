@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REDCap for Clinical Studies</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        header {
+            background-color: #2b579a;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+        }
+        h1, h2, h3 {
+            color: #2b579a;
+        }
+        header h1 {
+            color: white;
+            margin: 0;
+        }
+        .content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .material-card {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .material-card h3 {
+            margin-top: 0;
+            border-bottom: 2px solid #2b579a;
+            padding-bottom: 0.5rem;
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .hero img {
+            max-width: 300px;
+            margin-bottom: 1rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .objectives {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .objective-item {
+            flex: 1;
+            min-width: 250px;
+            background-color: #e8f1fb;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .course-materials {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .material-box {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .material-box:hover {
+            transform: translateY(-5px);
+        }
+        .material-box h3 {
+            margin-top: 0;
+        }
+        .material-box a {
+            display: inline-block;
+            margin-top: 1rem;
+            text-decoration: none;
+            color: #2b579a;
+            font-weight: bold;
+        }
+        .material-box a:hover {
+            text-decoration: underline;
+        }
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>REDCap for Clinical Studies</h1>
+        <p>A comprehensive course for doctoral students and clinical researchers</p>
+    </header>
+
+    <div class="content">
+        <div class="hero">
+            <img src="images/welcome.png" alt="REDCap Welcome Image">
+            <p>Designed and taught by Luca Vedovelli, Biostatistician, Clinical Trials Unit</p>
+        </div>
+
+        <h2>Course Overview</h2>
+        <p>This course provides comprehensive training on using REDCap (Research Electronic Data Capture) for clinical studies. Designed for doctoral students and researchers, it covers everything from basic project setup to advanced features and API integration.</p>
+
+        <h2>Learning Objectives</h2>
+        <div class="objectives">
+            <div class="objective-item">
+                <span class="emoji">🧩</span>
+                <h3>Electronic Data Capture & Regulations</h3>
+                <p>Understand ICH-GCP, GDPR, and ALCOA+ principles to ensure data integrity and regulatory compliance.</p>
+            </div>
+            <div class="objective-item">
+                <span class="emoji">🛠️</span>
+                <h3>REDCap Project Design</h3>
+                <p>Master the creation of instruments, validation rules, branching logic, and calculated fields.</p>
+            </div>
+            <div class="objective-item">
+                <span class="emoji">🔄</span>
+                <h3>Advanced Features</h3>
+                <p>Configure surveys, longitudinal studies, repeating instruments, and eConsent 2.0.</p>
+            </div>
+            <div class="objective-item">
+                <span class="emoji">📊</span>
+                <h3>REDCap API Integration</h3>
+                <p>Learn to interact with REDCap via RStudio and API using JSON and tidyverse for data analysis.</p>
+            </div>
+            <div class="objective-item">
+                <span class="emoji">🔐</span>
+                <h3>Governance</h3>
+                <p>Implement best practices for managing user access, logs, and external modules.</p>
+            </div>
+        </div>
+
+        <h2>Course Materials</h2>
+        <div class="course-materials">
+            <div class="material-box">
+                <h3>Presentation Slides</h3>
+                <p>Comprehensive slides covering all course topics including data capture principles, regulatory compliance, and practical implementation.</p>
+                <a href="RedCap_phd.html">View Slides</a>
+            </div>
+            <div class="material-box">
+                <h3>Hands-on Tutorial</h3>
+                <p>Step-by-step guide to create and configure REDCap projects, including validation, logic, and advanced features.</p>
+                <a href="RedCap_hands_on.html">View Tutorial</a>
+            </div>
+            <div class="material-box">
+                <h3>API Integration Tutorial</h3>
+                <p>Learn how to interact with REDCap programmatically using R, enabling automated data extraction and analysis.</p>
+                <a href="RedCap_hands_on_API.html">View API Tutorial</a>
+            </div>
+        </div>
+
+        <div class="material-card">
+            <h3>Getting Started</h3>
+            <p>To make the most of these materials:</p>
+            <ol>
+                <li>Review the presentation slides for conceptual understanding</li>
+                <li>Follow the hands-on tutorial to practice basic REDCap functionality</li>
+                <li>Try the API integration tutorial for advanced data management</li>
+                <li>Explore the source code in the <a href="https://github.com/username/2025.RedCap_PhD">GitHub repository</a></li>
+            </ol>
+        </div>
+
+        <div class="material-card">
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Basic understanding of research methodology</li>
+                <li>Familiarity with data management concepts</li>
+                <li>For API tutorials: R and RStudio installed</li>
+                <li>Required R packages: redcapAPI, tidyverse</li>
+                <li>Access to a REDCap instance</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Doctoral School Program | Course materials licensed under <a href="LICENSE.md">LICENSE</a></p>
+        <p>For questions or support, contact the instructor at <a href="mailto:instructor@example.com">instructor@example.com</a></p>
+    </footer>
+</body>
+</html>
