@@ -1,0 +1,447 @@
+---
+title: "Hands-On Lab: Creating a Basic REDCap Project (v11) 🧪"
+author: "Luca Vedovelli"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
+    highlight: tango
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+# 1. Creating a New Project 🚀
+
+Start a new project: Log in to REDCap and click the **New Project** button on the home or *My Projects* page.
+In the project creation form, enter a descriptive **Project Title** (e.g., “Nutrition Survey – [Your Name]”).
+
+Set project purpose: For this practice lab, select **Practice/Just for Fun** as the purpose (this avoids extra IRB-related fields).
+Leave “Project Notes” blank or add a short description.
+
+Choose project type: Under “Start project from scratch or begin with a template,” select **Create an empty project (blank slate)** and click **Create Project**.
+This will create a new REDCap project in *Development mode* with no pre-defined instruments.
+
+Project Setup basics: After creation, REDCap will take you to the *Project Setup* page.
+Here you see a checklist of setup steps.
+Enable certain features now: \* In *Main project settings*, click **Enable** next to “Use surveys in this project” (this allows instruments to be used as surveys).
+\* Ensure project status is “*Development*” (the default for new projects).
+*(For this lab, we will not enable longitudinal or repeating instruments, since we’re building a single-arm survey project.)*
+
+Review the setup checklist: Note the sections for *Design Instruments*, *Enable Surveys*, *User Rights*, etc.
+We will address these in the following exercises.
+The *Project Setup* page is your roadmap – it links to all major configuration areas.
+
+# 2. Designing Data Collection Instruments (Online Designer) 📝
+
+Now you will create two instruments (forms) for the study: a *Screening Form* (to collect eligibility info) and a *Main Questionnaire* (to collect detailed data).
+We will add various field types, apply validation, and use branching logic and calculations.
+
+## a. Create and Name Instruments
+
+In *Project Setup*, find **Design your data collection instruments** and click **Online Designer**.
+You’ll see the default instrument (often named “My First Instrument”).
+Click **Rename Instrument** (the pencil icon ✏️) and rename it to **Screening Form** (this will be our first instrument).
+
+Click **+ Add new instrument** and name the second instrument **Main Questionnaire**.
+You should now have two instruments listed in the *Online Designer*: “Screening Form” and “Main Questionnaire.”
+
+## b. Build the Screening Form
+
+Use the *Online Designer* to add fields to the **Screening Form**.
+Click on **Screening Form** to open it, then use **Add Field** for each of the following:
+
+-   **Consent (Yes/No)**: Add a *Yes/No* field asking for consent to participate (e.g., “Do you consent to participate in this survey?”). This will store a “Yes” as value 1 and “No” as 0 by default. Mark this field as **Required** (so the survey cannot be submitted unless they answer).
+-   **Age (Numeric)**: Add a *Text Box* field labeled “Age” to capture the participant’s age. In *Field Type*, choose *Text* and set *Validation = Integer* (whole number). Optionally set a range (e.g., min 18, max 99) if the study is for adults. Mark this field **Required**.
+-   **(Optional) Gender**: Add a *Multiple Choice (Dropdown)* field for Gender (e.g., choices: 1 = Male, 2 = Female, 3 = Other). This isn’t used for eligibility logic but is common demographic info.
+-   **Eligibility Message (Descriptive)**: We will implement an immediate eligibility feedback. Add a *Descriptive Text* field (no input, just text display). For the label or content, type a message like “*You are not eligible to continue with the study.*” In the field’s *Branching Logic*, set it to display only if `[Age] < 18`. (Use the drag-and-drop logic builder or type `[{age_field_name}] < 18` as the logic – replace `{age_field_name}` with the actual variable name for Age.) This descriptive text will appear only for underage participants, informing them they can’t proceed.
+-   **Continue Message (Descriptive)**: Similarly, add another *Descriptive* field with a message like “*Thank you! You are eligible to continue to the main survey.*” Set its branching logic to show if `[Age] >= 18 AND [Consent] = “Yes”` (i.e., consent given and age is sufficient). This friendly note will be seen by eligible participants after they enter their age.
+
+Click **Save** to save all added fields on the *Screening Form*.
+
+➡️ After adding these fields, your *Screening Form* should include consent and age questions, and dynamic text that appears based on eligibility.
+Next, we design the main survey instrument.
+
+## c. Build the Main Questionnaire
+
+Now add fields to the **Main Questionnaire** instrument.
+Click **Main Questionnaire** in *Online Designer* and create the following fields and example questions:
+
+-   **Height (Numeric)**: Add a *Text* field “Height (cm)” for the participant’s height in centimeters. Set *Validation = Number* (or Integer) and perhaps a range (e.g., 50 to 250 cm to catch outliers).
+-   **Weight (Numeric)**: Add a *Text* field “Weight (kg)” for weight. Validate as *Number*, range e.g. 20 to 300 kg.
+-   **BMI (Calculated)**: Add a *Calculated Field* labeled “Body Mass Index (BMI)”. In the *Calculation Equation* box, enter a formula to calculate BMI using weight and height. For example (if height is in cm and weight in kg): `text     ([weight] * 10000) / ([height] * [height])` This formula multiplies weight by 10,000 and divides by height² to yield BMI. (REDCap calculation syntax is similar to Excel; use square brackets around variable names and follow standard math order.) Choose a suitable number of decimal places for the result. *Tip*: After saving, try the “Test calculation with a record” feature to ensure it works.
+-   **Diet (Yes/No)**: Add a *Yes/No* field: “Do you follow a special diet (e.g., vegetarian, keto)?”.
+-   **Diet Details (Text)**: Add a *Text Box* field: “If yes, specify your diet.” We only want this to appear if the previous question was “Yes.” Set *Branching Logic* for this field to show only if `[Diet] = “Yes”`. (In the logic builder, select the Diet field = Yes).
+-   **Vegetable Intake (Slider or Dropdown)**: (Optional) Add a question to collect a numeric value, for practice with validations and data quality checks. For example, a *Slider* or *Dropdown* field: “How many servings of vegetables do you eat per day?” with a range 0 to 10. This will just be a number we might check for plausibility later.
+-   **Email (Text) – optional**: (Optional field for alerts) Add a *Text* field “Email address” (if you plan to test Alerts or communications). Set *Validation = Email* to enforce proper formatting. Mark it *not required* (since some may not provide an email). You can also tag this field as an **Identifier** (check the “Identifier?” option) if it’s personally identifying – this is good practice for real projects because identified fields can be easily omitted in de-identified exports.
+
+**Save** the *Main Questionnaire* instrument when done.
+Now you have two instruments with a variety of field types: \* ***Screening Form***: Consent, Age (with validation), etc., and automatic eligibility messages.
+\* ***Main Questionnaire***: Height/Weight with a calculated BMI, a branching logic example (diet question), and other fields.
+
+Before proceeding, **test your instruments** with some dummy data: Use *Add / Edit Records* (left menu) or *Preview Instrument* to enter a sample record.
+For example, enter an age below 18 to see the ineligible message, then try age 18+ to see that the *Main Questionnaire* would be expected next.
+Enter some heights/weights to verify BMI calculation, and test that the *Diet Details* field only appears when appropriate.
+Testing ensures your branching logic and calculations behave as expected.
+
+# 3. Implementing Eligibility Logic ✅
+
+We have set up the core fields for determining eligibility (age and consent).
+Now we’ll ensure that only eligible participants proceed to the main survey:
+
+-   **Verify branching on the Screening Form**: The descriptive text for ineligibility (“not eligible to continue”) should already be set to show for `Age < 18`. If you haven’t, also make sure questions on the *Main Questionnaire* are NOT on the screening form (they’re separate instruments). Our approach will be to use the *Survey Queue* (next section) to control survey flow based on eligibility.
+-   **(Optional) Calculated flag**: As an alternative method, you could add a calculated field on the *Screening Form* to flag eligibility. For example, a calc field `eligible_flag = if([age] >= 18 and [consent] = 1, 1, 0)` which yields 1 if eligible. This isn’t directly visible to participants, but could be used in logic. However, since we gave direct branching messages, we’ll instead use conditions in the *Survey Queue*.
+-   **Double-check required criteria**: Ensure *Consent* and *Age* on the *Screening form* are marked **Required**. This guarantees you won’t get an “eligible” person without those fields completed. If a participant selects “No” to consent or is under 18, they should not continue. (We will configure the survey flow such that it naturally stops after the screening for those cases.)
+
+At this point, the project has the necessary fields to decide eligibility.
+Next, we’ll enable the instruments as surveys and set up the *Survey Queue* with logic, so only eligible respondents receive the main questionnaire.
+
+# 4. Enabling Surveys, Survey Queue, and Alerts 📬
+
+In this step, you will enable your forms as surveys, configure an automated flow between the screening and main survey, and set up an email alert for certain conditions.
+
+## a. Enable Surveys and Customize Settings
+
+-   **Enable instruments as surveys**: Go to *Online Designer*. Click the **Enable** button next to “Screening Form” to turn it into a survey. Do the same for “Main Questionnaire.” You’ll see a green checkmark icon ✅ appear for each, and new options like *Survey Settings* and *Survey Distribution* will become available.
+-   **Survey Settings**: For each survey (especially the *Screening Form*), you may customize basic settings:
+    -   *Survey Title*: Give a user-friendly title (e.g., “Nutrition Study Screening Survey” for the first form).
+    -   *Instructions/Text*: Add any introductory text (e.g., a consent info blurb) at the top.
+    -   Ensure *Save & Return Later* is **off** (not needed for short surveys) and consider enabling *Auto-Numbering* for records if not already (so record IDs generate automatically for surveys).
+-   **Save** the survey settings. (You can leave most defaults as-is for this exercise.)
+
+## b. Set Up Survey Flow with Survey Queue
+
+We will use REDCap’s *Survey Queue* to link the screening and main survey, ensuring the main survey is only accessible if eligibility criteria are met.
+
+-   **Configure Survey Queue**: In *Online Designer*, click the **Survey Queue** button (at the top or bottom of the instrument list). In the queue setup dialog, you’ll see your surveys listed. For the *Main Questionnaire*, check the option to display it in the queue when conditions are met. Set two conditions using logic:
+    -   When *Screening Form is Complete* (there may be a checkbox or dropdown to select this condition).
+    -   AND when `[age] >= 18` (and optionally `AND [consent] = “Yes”`). You can type the logic or use the builder. For example: `([age] >= 18) and ([consent] = "1")`. This means the main survey will only appear after the screening is done and the respondent is an adult who consented.
+-   Leave the *Screening Form* itself as “not activated” in queue (we don’t need to queue the first survey; it will be taken via its public link or invitation).
+-   **Auto-Start (optional)**: Optionally, you can check *Auto Start* for the *Main Questionnaire* in the queue, which will automatically begin the main survey immediately after an eligible participant completes the screening. If you leave *Auto Start* off, the participant will see a page listing the next survey link. (Either is fine to demonstrate the functionality.)
+-   **Hide Queue (optional)**: If you don’t want participants to see a “queue” page at all, you can enable “Keep the Survey Queue hidden from participants” and rely on *Auto Start* to seamlessly flow to the next survey. For this exercise, it’s okay to leave the queue visible, so you can observe the logic.
+-   **Test the survey flow**: Obtain the *public survey link* for the *Screening Form* (via *Survey Distribution Tools*). Open it in a private window and try inputting an ineligible scenario (e.g., age 17 or consent = No). Upon submitting, the survey should end without offering the main survey (or you see no follow-up in the queue). Then try an eligible scenario (consent Yes, age 25) – after submitting, you should either automatically proceed to the *Main Questionnaire* or see a button to start it. This confirms your queue logic is working.
+
+## c. Configure Alerts & Notifications 📧
+
+Next, set up an email alert to demonstrate REDCap’s automated notifications (for example, to notify study staff when a form is submitted or when certain data conditions occur):
+
+-   **Open Alerts & Notifications**: On the project menu, under *Applications*, click **Alerts & Notifications**. Then click **+ Add New Alert**.
+-   **Define trigger and condition**: For this alert, we’ll notify the study team if a participant’s BMI is high (as a simple example of a data-driven alert). Configure:
+    -   *Alert Title*: e.g., “High BMI Alert”.
+    -   *Triggering Event*: Choose “When a survey is completed” and select *Main Questionnaire* (so it triggers after the main survey is submitted).
+    -   *Condition (optional)*: Set *Conditional Logic* to `([bmi] > 30)` or another threshold. This means the alert will only fire if the BMI calculated is over 30 (indicating the participant is overweight/obese). You could also use other logic, e.g., based on a survey question response.
+    -   *When to Send*: Set to send *Immediately* after conditions are met (default).
+    -   *Recipients*: Set the recipient as yourself (or the instructor) for testing. You can choose your REDCap account email or type a specific address. (For this lab, you might use your own email to see the alert come through.)
+    -   *Email Content*: Write a short message, e.g.: “Alert: A participant with BMI \> 30 just completed the survey (Record ID `[record_id]`).” You can use *Piping* to include data values in the message; for example, include the record’s BMI by putting `[bmi]` in the text, or the Record ID via `[record_id]`.
+-   **Save the Alert**. The alert will now be active. Test it by submitting a *Main Questionnaire* with data that triggers the condition (e.g., height 160, weight 100 to yield BMI \~39). Then check the *Notification Log* (within *Alerts & Notifications*) to see if the email was sent. (If email is configured on your REDCap, you should receive it; if not, you can still see the log entry.)
+
+This demonstrates how alerts can automate messages based on form completion or specific responses.
+In real projects, you could send enrollment notifications, trigger safety alerts, etc.
+
+# 5. Managing User Roles and Permissions 👥
+
+REDCap projects allow granular control over who can do what.
+In this exercise, you will create example user roles and adjust permissions, simulating a real study team.
+
+-   **Open User Rights**: On the left menu, go to **User Rights**. This page lists all current users with access and their permissions. By default, you (the project creator) are the only user and have full rights (as *Project Owner*).
+-   **Create Roles**: Scroll to the *User Roles* section. Click **+ Create Role** (or it might say “Add new role”). Define a role name and set the desired permissions by checking/unchecking boxes. Create the following roles:
+    -   ***Data Entry*** – a restrictive role for site staff entering data. For example: can *add/edit records* and *view records*, cannot *export identifiers* (set Data Export to “De-identified” or none), cannot *design project* or *manage users*. Also limit other modules like API or Data Import for this role. (In practice, this might also be tied to a Data Access Group for site-specific access.)
+    -   ***Investigator*** – a higher-level role for the PI or lead investigator. This role might have nearly full access: can *view & edit all data*, *export data* (maybe full export rights), *design instruments*, and *manage users*. Essentially an admin role on the project.
+    -   ***Monitor/Read-Only*** – a role for an auditor or external monitor with view-only access. For example: set all forms to *Read Only* (can view records but not edit), no project design rights, no data export (or perhaps export de-identified only), and enable *Logging* and *Data Quality* viewing so they can review audit trails.
+-   After selecting the checkboxes for each role’s rights, **Save Role**. Repeat to create the three roles. User roles make it easier to apply a standard set of permissions to multiple users consistently.
+-   **Add Users & Assign Roles**: In the *Add User* section at the top of *User Rights*, enter the REDCap username or email of a colleague (or a test account) and click **Add with role**. When prompted, assign them one of the roles you created (e.g., *Data Entry*). You can add multiple users this way, each with an appropriate role. If you don’t have additional users to add, you can still simulate by editing your own user and assigning yourself to a new role to observe permission changes (though be careful not to remove your ability to get back to *User Rights*!).
+-   **Test role permissions**: If possible, have the added user log in (or use impersonate if you have admin access) to see REDCap from their perspective. For example, a *Data Entry* user should see that project design and export options are hidden or greyed out. Try logging in as the *Monitor* role – you’ll notice you can view records but not edit (fields will be read-only) and you might see “You don’t have permission” messages if you attempt restricted actions. Experiencing these differences confirms that your role settings are in effect.
+-   **Data Access Groups (optional)**: If your project were multi-site, you could create *Data Access Groups (DAGs)* to silo data by site. For instance, you might assign *Data Entry* users to different DAGs so they only see their site’s records. This is not necessary for our single-site nutrition survey, but it’s good to know as a concept.
+
+By configuring roles, you’ve applied the **principle of least privilege** – each user gets only the access needed for their role.
+This protects data and ensures accountability.
+
+# 6. Exploring the Audit Log and User Access Controls 🕵️‍♂️
+
+REDCap automatically tracks all changes and user actions in the **Logging (Audit Trail)**.
+We will check the log to review the activities we’ve done and see how to filter it.
+
+-   **View Logging**: Click **Logging** in the left-hand menu. This will display a chronological audit trail of all events in the project – every data value saved, project setting change, user assignment, etc., along with timestamps and user account info. The *Logging* tool shows the entire audit trail of the project’s life.
+-   **Find specific events**: Use the filters at the top of the *Logging* page (if available) to narrow down events. For example, filter by “*Data values*” to see data entry/save events, or by “*Manage/Design*” to see when fields were added or modified. You should see entries for creating the project, adding fields, moving instruments to production (if you did), survey submissions, and user role changes. Each log entry lists the event type, the user, timestamp, and details of the change.
+    -   Look for the entry when you added a new user or changed user rights – it will show which user account was changed and what role was assigned.
+    -   Also find an entry for data saving: for instance, “Record `[ID]` – Main Questionnaire – data saved” with the values. Clicking the “View details” icon (if present) will show exactly which fields were changed and their new values.
+-   **Verify data changes in log**: Go back to *Data Entry (Add/Edit Records)* and edit a record (e.g., change a value for vegetable servings or diet answer). Save, then refresh the *Logging* page – you should see a new entry capturing that data change. This is how REDCap provides an immutable audit log for data provenance. (Note: Multiple field changes in one save operation may appear in one log entry with composite details.)
+-   **User access review**: In addition to *Logging*, also know that the *User Rights* page itself is a form of access control record. It lists all users and their roles/privileges at a glance. It’s good practice to periodically review this and remove any users who no longer need access (you can deactivate or delete users with one click). REDCap even has tools for one-click offboarding of users from all projects if needed.
+-   If your REDCap system has a *User Access Dashboard* or similar (some institutions do), check it out to see last login times or account statuses. Otherwise, the project *Logging* will also note user login events or failed login attempts.
+
+By reviewing the audit log, you ensure transparency and can retrace any change in the project.
+This is crucial for compliance and troubleshooting.
+*Remember*: every action (data entry, exports, design changes) is being recorded in the log.
+In regulated studies, monitors or auditors may ask to see this.
+
+# 7. Data Quality and Validation Checks 📊
+
+High-quality data is essential in research.
+REDCap provides built-in **Data Quality rules** and the ability to create custom checks to find errors or inconsistencies in your data.
+In this section, you will explore validation in action and set up a data quality rule.
+
+## a. Field Validation in Action
+
+We already applied field validation (e.g., numeric, email) to some fields.
+Let’s see how REDCap enforces it:
+
+-   **Try entering an invalid value on a form**: for example, open a record and in the *Age* field (which we set to integer 18-99) enter “twenty” or “150”. When you attempt to save or move off the field, REDCap will prompt that the value is not a valid number or out of range. It will prevent you from saving until a valid number is entered. Similarly, for the *Email* field, try typing an address without “\@” – you’ll see a validation error. This immediate feedback helps maintain data quality at entry.
+-   Also, recall that **required fields** won’t allow form submission if left blank – if you try to submit the survey without answering a required question, you’ll be prompted to complete it.
+
+## b. Using the Data Quality Module
+
+Now use the **Data Quality** tool for cross-field checks and finding anomalies:
+
+-   **Open Data Quality**: On the left menu, click **Data Quality**. You’ll see a list of pre-defined *Data Quality rules* (labeled e.g. “Rule A”, “B”, etc., depending on your REDCap version). These might include checks like “Missing values for required fields” or “Invalid dates” and other general checks. REDCap provides a few standard built-in rules by default.
+-   Click “**Execute All**” or run a specific rule. For example, run the rule for missing values to see if any required field is empty in your records (there shouldn’t be, if you tested properly). Each rule will show a list of records that violate the rule, if any, and allow you to navigate to them for correction.
+-   **Create a custom rule**: Let’s add a custom data quality rule to catch an outlier scenario. Click **+ Add new rule**. Define:
+    -   *Rule Name*: e.g., “Unrealistic BMI Check”.
+    -   *Logic*: Enter a logical expression that flags impossible BMI values. For instance: `text       [bmi] < 10 or [bmi] > 60` This will flag records where the BMI is below 10 or above 60 (values that likely indicate data entry error, like units mix-up). Writing DQ logic is similar to branching logic syntax.
+-   **Save the rule**. It will appear in the list. Now click **Execute** for that rule. If you have a test record with, say, height 170 and weight 20 (BMI \~7) or something extreme, that record will be listed as violating the rule. If not, you may temporarily edit a record to create an out-of-range BMI and rerun to see the rule catch it.
+-   **Explore the options**: you can view the discrepant record, mark as resolved if it’s a known issue, or assign it to a user (in production settings, you might formally assign data queries to team members to resolve). For now, just note how the rule identifies potential data problems.
+-   **Check other rules or create more (optional)**: If time permits, try another custom rule. For example, if you recorded a consent date and enrollment date, you could check that enrollment is after consent. Or a simpler one: if we had a question like “Pregnant (yes/no)” and “Gender”, a rule could flag records where a male is marked pregnant. This demonstrates how data quality rules help maintain logical consistency in data.
+-   **Resolve issues**: For any data quality issue found, practice resolving it: click the record, fix the value (or mark it resolved with a comment like “typo corrected”), then re-run the rule to ensure it’s clear. Maintaining a habit of regularly running DQ rules can catch errors early in data collection.
+
+*Data Quality rules* can be run anytime, and you can even schedule them via cron or the API in advanced workflows.
+The key is that you have automated and manual checks to keep your dataset clean and analysis-ready.
+Always plan a data review process (e.g., weekly checks) throughout the study, not just at the end.
+
+# 8. (Optional) Advanced Topics: API and Project Reproducibility ⚙️
+
+If you have extra time, here are a couple of advanced features to explore briefly:
+
+## REDCap API (Application Programming Interface)
+
+The API allows you to interact with REDCap programmatically (for example, pulling data into R or Python for analysis, or pushing data from an external survey).
+To use it:
+
+-   Go to **API** in the left menu (under *Applications*). If you don’t see “API”, first grant your user account API rights in *User Rights*.
+-   In the API page, click **Generate API Token** (or “Request API token”) for your project. (On some servers, an admin must approve the request.) This will provide a unique token string. **Keep it secure** – it’s essentially a password for your project’s data.
+-   With the token, you can use various API methods. For example, you could use *API Playground* (on the API page) to test calls like exporting all records or exporting the project’s data dictionary. The *Playground* even shows sample code in languages like R, Python, cURL, etc., for each API call.
+-   *Example*: Use the *Playground* to export your survey data as CSV. Select “Export Records”, choose CSV, and execute – you’ll get a URL or code snippet. (You may not actually retrieve data in this interface depending on permissions, but it shows how it works.)
+
+While a full API tutorial is beyond scope, be aware that the **REDCap API is powerful** for integrating with statistical tools and automating data tasks.
+(E.g., you can write an R script that uses your API token to fetch the latest data and perform analysis, ensuring you always have the most up-to-date data in your analysis pipeline.)
+
+```{r, eval=FALSE}
+# --- Load Required Libraries ---
+# install.packages("httr") # Run this once if you haven't installed httr
+# install.packages("readr") # Run this once if you haven't installed readr
+library(httr)
+library(readr)
+
+# --- Configuration ---
+# Replace with your actual API Token and REDCap API URL
+api_token <- "YOUR_PROJECT_API_TOKEN_HERE" # ⚠️ Keep this secure!
+redcap_api_url <- "https_://your_redcap_instance/api/" # ⚠️ Update with your REDCap API endpoint
+
+# --- API Request Details (as a list for the POST body) ---
+formData <- list(
+  token = api_token,
+  content = 'record',       # Specify that we want to export records
+  format = 'csv',           # Specify the format as CSV
+  type = 'flat',            # Specify 'flat' for a simple row-per-record format
+  rawOrLabel = 'raw',       # 'raw' for coded values, 'label' for human-readable labels
+  rawOrLabelHeaders = 'raw',# 'raw' for variable names, 'label' for field labels in header
+  exportCheckboxLabel = 'false', # Set to 'true' to export checkbox labels
+  exportSurveyFields = 'true', # Set to 'true' to include survey-specific fields
+  exportDataAccessGroups = 'false', # Set to 'true' if you want to export DAG assignments
+  returnFormat = 'csv'      # Specifies the format of the API's response
+)
+
+# --- Making the API Request ---
+response <- httr::POST(
+  url = redcap_api_url,
+  body = formData,
+  encode = "form" # Important for sending form data
+)
+
+# --- Check for HTTP Errors and Process the Response ---
+if (httr::status_code(response) == 200) {
+  print("Successfully fetched data from REDCap!")
+
+  # Get the content of the response as text (which is the CSV data)
+  csv_data_text <- httr::content(response, "text", encoding = "UTF-8")
+
+  # Option 1: Print the first 500 characters of the CSV to the console
+  cat("\nFirst 500 characters of CSV data:\n")
+  cat(substr(csv_data_text, 1, 500))
+  cat("...\n\n")
+
+  # Option 2: Parse the CSV data using readr and print the first few rows
+  # The `read_csv` function can take text input directly
+  tryCatch({
+    # `I()` tells read_csv to treat the string as if it were a connection/file
+    df_records <- readr::read_csv(I(csv_data_text), show_col_types = FALSE)
+
+    cat("First 3 rows of the fetched data (tibble format):\n")
+    print(head(df_records, 3))
+
+    # Further processing: You now have the data in a tibble (data frame-like object)
+    # For example, to save to a file:
+    # readr::write_csv(df_records, "redcap_export_r.csv")
+    # cat("\nData also saved to redcap_export_r.csv\n")
+
+  }, error = function(e) {
+    cat("Error parsing CSV data with readr: ", e$message, "\n")
+    cat("Consider saving the raw csv_data_text to inspect it.\n")
+  })
+
+} else {
+  cat("Error fetching data from REDCap.\n")
+  cat("Status Code:", httr::status_code(response), "\n")
+  # Print more detailed error information if available
+  # print(httr::content(response, "text", encoding = "UTF-8"))
+}
+
+```
+
+### Explanation of the R Example:
+
+This R script uses the `httr` and `readr` packages.
+Ensure they are installed (e.g., `install.packages(c("httr", "readr")))`.
+
+**Configuration**: As with Python, replace placeholders for `api_token` and`redcap_api_url`.
+
+**API Request Details** (formData): A list defining the API call parameters.
+
+**Making the Request:** httr::POST() sends the request, with `encode = "form"`.
+
+**Checking Status and Processing Response:** The script checks the HTTP status, extracts the CSV text, prints a snippet, and then parses it into a tibble using `readr::read_csv().`
+
+**Error Handling**: Basic status code checking and a `tryCatch` for CSV parsing are included.
+This R example offers a robust way to retrieve REDCap data for analysis within the R environment.
+
+Always handle your API token securely.
+
+# 9.Extras 
+
+## Project Backup & Reproducibility
+
+-   To preserve your work or move it, REDCap lets you export the entire project design. On the *Other Functionality* tab of *Project Setup* (or in *Data Export* section), find **Export Project XML**. This produces an ODM XML file containing all project metadata (fields, instruments, settings) and optionally the data.
+-   **Save the Data Dictionary**: You can also download the *Data Dictionary (CSV)* via the “Download metadata” option. This CSV lists all your fields and can be used to rebuild the project or for version control (commit it to a repository to track changes to your instrument over time).
+
+## Move to Production
+
+In a real study, once design and testing are done, you would click **Move project to production** (*Project Setup*).
+This locks the structure (though you can still make changes via draft mode) and begins formal data collection.
+It’s a *best practice* to do testing with fake data in *Development*, then switch to *Production* for real data to ensure stability.
+
+## Documentation 📜
+
+It’s good to generate a *Codebook* or instrument PDFs for documentation.
+Use *Codebook* or *Print instrument* options to save a PDF of your survey instruments for the study binder.
+This, along with the data dictionary and XML backup, helps in reproducibility and audit readiness.
+
+## Version Control and Collaboration
+
+If using external scripts (R, Python) with the API, store those scripts in a version control system (e.g., Git) alongside the data dictionary.
+This way, the exact state of your data collection instrument and the analysis code is recorded – aiding reproducibility.
+
+By exploring these advanced aspects, you prepare for scaling up your REDCap usage beyond the basics.
+Generating an API token and exporting project XML are especially useful for larger projects and collaborative environments.
+
+# Congratulations! 🎉
+
+You have now built a complete REDCap project with multiple instruments, implemented branching logic and calculations, enforced data validation, set up conditional survey flow, configured user permissions, examined audit logs, and established data quality checks.
+You’ve even touched on advanced features like alerts and the API.
+This hands-on practice reflects many real-world scenarios in managing research data capture.
+Keep this workbook for reference, and don’t hesitate to explore REDCap’s many other features (e.g., longitudinal setups, randomization, survey themes) as your projects grow.
+*Happy data capturing!* 📊✨
+
+# 10. (Optional) Exploring Longitudinal Design 🗓️
+
+If your research involves collecting data from the same participants at multiple time points, REDCap's *longitudinal design* feature is essential.
+This allows you to define a schedule of events and assign specific data collection instruments to each event.
+
+## Enabling Longitudinal Data Collection
+
+1.  **Navigate to Project Setup**: From your project's main page, go to *Project Setup*.
+2.  **Enable Longitudinal Module**: In the *Main project settings* box, find the option "Use longitudinal data collection with defined events?" and click the **Enable** button.
+3.  A new section titled "**Define My Events**" and "**Designate Instruments for My Events**" will appear on the *Project Setup* page.
+
+## Defining Events
+
+Events represent the different time points or study visits where data will be collected.
+
+1.  **Go to Define My Events**: Click on the "Define My Events" button.
+2.  **Add New Events**:
+    -   You'll typically start with an initial event (e.g., "Baseline Visit", "Enrollment").
+    -   Enter an **Event Name** (e.g., "Month 1 Follow-up", "Post-intervention").
+    -   Specify an **Offset** (e.g., 30 days from baseline, 0 days for the first event) and an **Offset Range** (e.g., +/- 3 days) to define the window for data collection for that event.
+    -   Click **Add new event** for each time point in your study.
+    -   You can reorder events using drag-and-drop.
+3.  **Save your events**.
+
+## Designating Instruments for Events
+
+Once events are defined, you need to specify which data collection instruments (forms) should be completed at each event.
+
+1.  **Go to Designate Instruments for My Events**: Click the "Designate Instruments for My Events" button.
+2.  **Assign Instruments**: You'll see a grid with your events listed as columns and your instruments as rows.
+    -   For each event, check the box for each instrument that needs to be completed at that specific time point.
+    -   For example, the *Screening Form* might only be used at the "Baseline" event, while a *Follow-up Questionnaire* might be used at "Month 1", "Month 6", and "Month 12" events.
+3.  Click **Save**.
+
+## Data Entry in a Longitudinal Project
+
+-   When you go to *Add / Edit Records*, you will first select or add a participant.
+-   Then, you will see an *event grid* or a dropdown menu allowing you to select the specific event for which you want to enter/view data.
+-   The instrument list for that participant and event will show only the forms designated for that particular event.
+
+## Key Considerations for Longitudinal Design
+
+-   **Planning is Crucial**: Clearly map out your study timeline and data collection points *before* setting up events in REDCap.
+-   **Arm Management**: For more complex studies (e.g., multiple study arms with different event schedules), REDCap allows you to define multiple "arms" for your project. Each arm can have its own set of events.
+-   **Scheduling Module**: REDCap has a *Scheduling Module* that can be used in longitudinal projects to help manage participant visit schedules based on the defined events.
+
+# 11. (Optional) Implementing Randomization 🎲
+
+If your study involves assigning participants to different groups or treatments randomly (e.g., in a clinical trial), REDCap’s *Randomization module* can facilitate this process.
+
+## Understanding Randomization in REDCap
+
+REDCap’s randomization module helps ensure unbiased allocation of participants to study arms.
+It uses a pre-defined allocation table (which can be uploaded or generated by a statistician) and ensures that the randomization process is concealed until the point of allocation.
+
+## Setting up the Randomization Module
+
+1.  **Navigate to Project Setup**: From your project's main page, go to *Project Setup*.
+2.  **Enable Randomization Module**: In the *Enable optional modules and customizations* box, find "Randomization module" and click the **Enable** button.
+3.  Once enabled, a new "Randomization" link will appear in the *Applications* section on the left-hand menu.
+
+## Defining the Randomization Model
+
+1.  **Access Randomization Module**: Click on "Randomization" from the left-hand menu.
+2.  **Initial Setup**: The first time you access it, you'll need to configure the randomization model.
+    -   **Stratification Factors (Optional)**: If your randomization is stratified (e.g., by site, gender, or disease severity), you need to define these strata. These must be pre-existing multiple-choice fields in your REDCap project.
+        -   Select the field(s) that will be used for stratification.
+    -   **Source of Allocation Table**:
+        -   ***Upload your own allocation table***: If a statistician has provided an allocation table (usually a CSV file with specific formatting), you can upload it here. This is the most common and recommended method for rigorous trials. The table defines the sequence of assignments.
+        -   ***Build a basic allocation table (for testing only)***: REDCap can generate a simple block randomization table. **This is generally NOT recommended for live clinical trials** but can be useful for testing the module.
+    -   **Grouped by DAGs (Optional)**: If your project uses Data Access Groups (DAGs) and randomization should be performed within each DAG (e.g., each site has its own randomization list), you can enable this.
+3.  **Upload Allocation Table**:
+    -   REDCap provides a template for the allocation table format if you choose to upload one. It typically requires columns for the allocation itself and, if stratified, columns for each stratum.
+    -   You will need separate allocation tables for *Development* mode (for testing) and *Production* mode (for real randomization). You must upload an allocation table for development status first.
+4.  **Save Configuration**.
+
+## Performing Randomization
+
+Once the model is set up and an allocation table is uploaded:
+
+1.  **Identify a Participant**: Navigate to an existing participant record or create a new one.
+2.  **Click "Randomize"**: On the record home page or within a data entry form, you should see a "Randomize" button (its location might vary slightly based on REDCap version and project setup).
+3.  **Confirm Criteria**: If stratification factors are used, you will be prompted to confirm the values for these factors for the participant.
+4.  **Allocate**: Click the button to assign the participant to a group according to the concealed allocation table.
+5.  **Record Assignment**: The system will reveal the allocated group, and this information will be stored in a special randomization field in REDCap. This field is typically locked from further editing.
+
+## Important Notes on Randomization 📝
+
+-   **Statistician Involvement**: Randomization scheme design and allocation table generation should *always* be done in consultation with a qualified statistician.
+-   **Concealment**: REDCap helps maintain allocation concealment, which is crucial for reducing bias in randomized trials.
+-   **Testing**: Thoroughly test the randomization module in *Development mode* using a test allocation table before moving your project to *Production*.
+-   **User Rights**: Control who can perform randomization via *User Rights*. Typically, only designated personnel should have this permission.
+-   **Audit Trail**: All randomization events are logged in the project's *Audit Trail (Logging)*.

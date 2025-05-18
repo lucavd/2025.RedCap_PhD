@@ -1,0 +1,1570 @@
+---
+title: "RedCap for Clinical Studies"
+format:
+  revealjs:
+    theme: default
+    slide-number: true
+    transition: fade
+    incremental: false
+    chalkboard: true
+    logo: images/logo.png
+    width: 1280
+    height: 720
+    center: true
+    margin: 0.1
+    fit: true
+    scrollable: true
+editor: visual
+---
+
+## Welcome & Logistics 🎉
+
+::: {.column width="30%"}
+![](images/welcome.png){width="100%"}
+:::
+
+::: {.column width="70%"}
+-   🎉 **Course Welcome**\
+-   🕑 **Agenda & Timing**\
+-   ⚙️ **Logistics & Etiquette**\
+-   🎥 **Recording & Materials**\
+-   🏠 **Housekeeping**\
+-   ▶️ **Next: Learning Objectives**\
+:::
+
+::: notes
+Good afternoon everyone, and thank you for spending the next two afternoons with me. My name is Luca Vedovelli; I’m a biostatistician in the Clinical Trials Unit and an unapologetic REDCap evangelist. I still remember the first time a monitor asked me to dig up a paper CRF from a dusty archive: it took half a day, three email chains, and a paper cut on my thumb. That was the moment I swore eternal loyalty to electronic data capture, and—spoiler alert—life has been better ever since.
+
+Let me situate you. This course is split into two four-hour blocks, today and tomorrow, running 14:30 → 18:00 CEST. Each block follows the same rhythm: a theory segment of roughly two hours, then a guided hands-on lab where you build, break, and rebuild a sandbox project. We take a 10-minute bio-break at the halfway mark of each segment—check your email, stretch, or grab caffeine as required. Our Teams room stays open, so remote participants can leave microphones on mute and cameras off during breaks, no need to log back in.
+
+Please refrain from posting screenshots that contain any personal data to social media; today’s datasets are synthetic, but data protection is a habit, not an on/off switch. If you have to step out, no problem—just slip back in quietly. Feel free to use the chat, or drop them on the collaborative Google Doc; I’ll check channels whenever we pause.
+
+The session is being recorded strictly for academic use within our doctoral school. Links to the video, the slides in PDF, the lab handbook, and a curated reading list are altready in the GitHub page.
+
+Restrooms are outside this door and to the right; emergency exits are clearly marked; in the unlikely event of a fire alarm, we assemble in the courtyard. Hydration is scientifically proven to boost memory, so keep those water bottles handy.
+
+With logistics sorted, let’s zoom out and see where these hours will take us. On the next slide I’ll frame the five learning objectives that anchor everything we do.
+:::
+
+------------------------------------------------------------------------
+
+## 🚀 What You’ll Learn
+
+🧩 Understand Electronic Data Capture & regulations\
+*(ICH-GCP, GDPR, ALCOA+)*
+
+🛠 Design a complete REDCap project\
+*(instruments, validation, logic, calculated fields…)*
+
+🔄 Configure advanced features\
+*(surveys, longitudinal setup, eConsent 2.0)*
+
+📊 Interact with REDCap via **RStudio + API**\
+*(JSON, tidyverse, version control)*
+
+🔐 Govern access, users, logs, and external modules
+
+::: notes
+Every good journey starts with a map. By 18:00 tomorrow you won’t be experts—expertise comes from projects and mistakes—but you will have the toolkit, the vocabulary, and the muscle memory to design a production-ready REDCap study and defend it in front of your supervisor or a regulatory auditor.
+
+**\[Objective 1: Describe EDC & regulation\]** First, you’ll be able to articulate the core principles of Electronic Data Capture—things like auditability, traceability, version control—and connect them to regulatory frameworks: ICH-GCP for clinical research, GDPR for privacy, and ISO-27001 for information security. Imagine yourself at a thesis defense; when the external examiner asks “How do you guarantee data integrity?” you’ll answer calmly, citing ALCOA+ and pointing to REDCap’s immutable logs.
+
+**\[Objective 2: Design a full project\]** Second, you’ll design a complete project from scratch: build instruments, apply validation, branch logic, calculated fields, pipe text, and hammer your creation with Data Quality Rules until it squeals. Today’s lab focuses on a single-arm observational study—think pilot nutrition survey—but the skills transfer directly to multicentre RCTs.
+
+**\[Objective 3: Configure advanced features\]** Third, we turn the volume up: survey queues that drip questionnaires over time, longitudinal event scheduling, repeating instruments, and the shiny eConsent 2.0 module that brings 21 CFR Part 11 compliance within reach for academic sites. These features aren’t “nice to have”; they’re how you scale from a pilot to a 2,000-participant registry without drowning in email reminders.
+
+**\[Objective 4: Interact programmatically\]** Fourth, statistics is code. Tomorrow you’ll fire up RStudio, install redcapAPI and tidyverse, generate an API token, and pull live JSON from your sandbox into a tidy tibble ready for analysis. No more CSVs named final_final_reallyFINAL.csv. We’ll version-control everything in Git so your entire workflow—from raw capture to reproducible report—sits in one transparent pipeline.
+
+**\[Objective 5: Govern studies & users\]** Fifth and finally, you’ll learn the dark-art side of REDCap: user-rights matrices, data-access groups, external module governance, and audit-log exports. Even if you never become a full system administrator, understanding these levers lets you have productive conversations with IT when your project hits production.
+:::
+
+------------------------------------------------------------------------
+
+## 💾 Electronic Data Capture
+
+### Why It Matters
+
+📉 **Paper-based chaos**\
+- Illegible values, faxes, delays\
+- Transcription errors, missing timestamps\
+- Multiply by 800 patients = nightmare
+
+🧠 **What is EDC?**\
+- Web-based interface with validation\
+- Real-time audit trail of every change\
+- Global access via secure HTTPS
+
+🧽 From messy → structured, searchable, standardised
+
+::: notes
+\[Paper-driven pain \] Picture a 200-page paper CRF, dog-eared, smudged with coffee rings. A coordinator notices an illegible blood-pressure value, faxes page 73 to the site investigator, waits 48 hours for clarification, then re-enters the data in Excel. Multiply that by 40 sites and 800 participants and you’ve got a nightmare cocktail of transcription errors, missing timestamps, and vanishing sticky notes. That’s 1990s research, and we’re not going back.
+
+\[EDC elevator pitch\] Electronic Data Capture replaces that chaos with a web interface that validates inputs in real time, writes every change to an audit log, and lets global teams collaborate from any device with HTTPS. It’s Excel with guardrails, a time machine, and a bouncer at the door—all rolled into one.
+:::
+
+------------------------------------------------------------------------
+
+## 📈 Why EDC Pays Off
+
+::::: {style="font-size: 0.85em;"}
+::: {.column width="50%"}
+📊 **Statistical wins**\
+- ✅ Cleaner distributions\
+- 🔄 Real-time logic checks\
+- 🕒 Full version control\
+- ⚡ Faster interim analyses → bigger N, less cost
+
+🌍 **Global collaboration**\
+- Real-time dashboards & QC\
+- Teams in different time zones, one dataset
+:::
+
+::: {.column width="50%"}
+🔐 **Built for compliance**\
+- Audit trail + role-based permissions\
+- Meets regulator & journal standards
+
+📱 **Offline-proof**\
+- REDCap mobile app syncs when back online\
+- Even monsoons can't stop it 🌧️📲
+:::
+:::::
+
+::: notes
+\[Statistical dividends\] For statisticians, the dividends are concrete: • Cleaner distributions—range checks kill implausible ages of 999. • Instant logic checks—branching prevents male pregnancies and diastolic \> systolic. • Version control—when an instrument changes, you know exactly when and why. • Faster interim analyses—no waiting for double data entry and reconciliation. On a recent vaccine trial we saved 17% of the data-management budget simply by catching format violations at point of entry. That money fed directly into a larger sample size.
+
+\[Collaboration at scale\] EDC breaks the tyranny of geography. Researchers in Nairobi can enter data while the Paris biostatistician runs morning QC scripts and the São Paulo DSMB chair reviews safety listings—all before lunch in Rome. Centralised data yields real-time dashboards: enrolment curves, randomisation balances, protocol deviation tallies.
+
+\[Governance & compliance edges\] Critics sometimes say, “Why not Google Forms?” Four words: audit trail and permissions. Generic survey tools can’t prove that record 123 changed at 14:37 because Maria Rossi updated the adverse-event narrative. Nor can they restrict Dr Chen to Site B while allowing Dr Omar to see only unblinded lab values. Regulators care, journals care, and meta-analysts care.
+
+\[Illustrative anecdote\] As an example a unit could supported a low-resource study on dengue seroprevalence. Tablets or phones can go offline in rural clinics; nurses collected data in REDCap’s offline mobile app; the moment a 3G signal resurfaces, data sync to the central server. Zero lost forms despite monsoon rains—try that with paper.
+
+\[Pause & reflect\] Take ten seconds: recall the worst data nightmare you’ve seen—duplicate IDs, mis-typed dates. Imagine it prevented at source. That’s the promise of EDC.
+:::
+
+------------------------------------------------------------------------
+
+## 🧠 Study Design Primer
+
+#### Why Design Before Tools?
+
+::: {style="font-size: 0.75em;"}
+👋 **Look at me!**\
+Before diving into REDCap features, let’s zoom out.\
+Behind every project is a **design logic** — and that’s what we decode now.
+
+❓ **Today we’ll ask:**\
+1. What designs answer causal vs descriptive questions?\
+2. How do we guard against bias and confounding?\
+3. How do REDCap modules support good design?
+
+🧠 **Goal:**\
+Look at a research idea and say:\
+\> “This calls for a randomised trial”\
+\> “This needs a cohort with time-based surveys”
+
+Every REDCap click should feel **intentional**, not mechanical.
+:::
+
+::: notes
+Before we dive any deeper into REDCap’s technical details, let’s ground ourselves in the fundamentals of study design. In the next forty-five minutes we will answer three questions: (1) What are the main blueprints researchers use to ask causal and descriptive questions? (2) How do those blueprints guard against bias and confounding? (3) Where do REDCap features—randomisation module, survey queues, longitudinal events—fit into that methodological picture?
+
+By the end of this mini-module you should be able to look at a research idea and say, “This calls for a randomised controlled trial,” or “A prospective cohort will do,” and immediately sketch the implications for data capture, user rights, and downstream analysis. Think of it as building a mental framework so every click you make later in REDCap feels purposeful rather than procedural.
+
+Our path is simple: five minutes of landscape, ten minutes on bias and confounding, ten minutes on randomisation and blinding, five minutes on analysis principles, then a quick bridge back to REDCap. I’ll keep things interactive—expect a couple of polls and a one-minute breakout to sketch a bias-control plan. Feel free to interrupt; clarifying a concept now will save headaches when you implement it in software
+:::
+
+------------------------------------------------------------------------
+
+## 🧩 How We'll Do It
+
+#### What to Expect Next
+
+📅 **Mini-module roadmap:**\
+- 5’ Landscape overview 🗺️\
+- 10’ Bias & confounding shields 🛡️\
+- 10’ RCTs, randomisation, blinding 🎲\
+- 5’ Principles of analysis 📈\
+- Final bridge back to REDCap 🧩
+
+💬 Clarify now → fewer headaches later in REDCap builds!
+
+::: notes
+Our path is simple: five minutes of landscape, ten minutes on bias and confounding, ten minutes on randomisation and blinding, five minutes on analysis principles, then a quick bridge back to REDCap. Feel free to interrupt; clarifying a concept now will save headaches when you implement it in software
+:::
+
+------------------------------------------------------------------------
+
+## 🌍 Study Design Landscape
+
+#### Know Your Blueprints
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🎯 **Randomised Controlled Trials (RCTs)**\
+- Random allocation = balanced groups\
+- ✅ Gold standard for causality\
+- ❌ Slow, expensive, may be unethical
+
+🔁 **Cohort Studies**\
+- Follow groups **forward in time**\
+- Great for incidence + multiple outcomes\
+- ⚠️ Confounding risk (self-selected exposure)
+:::
+
+::: {.column width="50%"}
+🔎 **Case-Control Studies**\
+- Start with outcome, look **back for exposure**\
+- Efficient for rare outcomes\
+- ⚠️ Recall bias, tricky control selection
+
+📸 **Cross-Sectional Surveys**\
+- One-time snapshot\
+- ✅ Best for prevalence\
+- ❌ Useless for temporality
+:::
+:::::
+
+::: notes
+Let’s map the territory. First up: Randomised Controlled Trials (RCTs). Their defining feature is random allocation to treatment, which—if done correctly—balances both measured and unmeasured confounders. Gold standard for causal inference, but expensive, slow, and sometimes unethical.
+
+Observational designs come in three flavours: • **Cohort studies** follow exposed and unexposed groups forward in time. Great for incidence and multiple outcomes, vulnerable to confounding, especially when exposures are self-selected. • **Case-control** studies start with outcome status and look back for exposures. Efficient for rare outcomes, but recall bias and control selection loom large. • **Cross-sectional** surveys take a snapshot; perfect for prevalence, hopeless for establishing temporality.
+:::
+
+------------------------------------------------------------------------
+
+## 🧭 Which Design, Which Tool?
+
+#### Fit Your Method to the Question
+
+🧪 **Example matches**\
+- 💉 New vaccine? → **RCT**\
+- 🌫️ Pollution effects? → **Prospective cohort**\
+- ⚠️ Rare side effect? → **Case-control**
+
+🧰 **REDCap Tips:**\
+- RCTs → enable **randomisation + blinding**\
+- Cohorts → setup **longitudinal events**\
+- Case-control → use **smart variables** for matching
+
+💡 REDCap is agnostic.\
+**You bring the design.** It brings the tools.
+
+::: notes
+The choice among these hinges on feasibility, ethical constraints, and the latency of the outcome of interest. Example: evaluating a new vaccine? Probably an RCT. Assessing long-term air-pollution effects? Prospective cohort. Investigating a rare adverse event? Case-control wins on sample size efficiency.
+
+When you open REDCap Project Setup after this lecture, keep the design in mind: RCTs need the randomisation module and blinding fields; cohorts need longitudinal events; case-control projects benefit from smart variables to match cases and controls. The platform is agnostic—you supply the methodological logic.
+:::
+
+------------------------------------------------------------------------
+
+## 🏗️ Trial Architectures
+
+#### Parallel, crossover, cluster, adaptive — when and why
+
+:::::: {style="font-size: 0.75em;"}
+::::: columns
+::: {.column width="50%"}
+🔀 **Parallel-group trials**\
+- One randomisation, two paths\
+- Simple, robust, good for lasting effects
+
+🔁 **Crossover trials**\
+- Each subject = own control\
+- Fewer participants, but need:\
+- Wash-out periods\
+- Reversible outcomes\
+- Period-effect vigilance
+:::
+
+::: {.column width="50%"}
+🏥 **Cluster-randomised trials**\
+- Randomise groups (wards, clinics...)\
+- Prevents contamination\
+- BUT: bigger sample due to design effect
+
+⚙️ **Adaptive trials**\
+- Adjust on the fly:\
+- Drop arms\
+- Change ratios\
+- Pick winner early\
+- Ethically efficient, but complex stats required
+:::
+:::::
+::::::
+
+::: notes
+Modern trial design is not a one-size-fits-all proposition; each architecture solves a specific scientific and logistical problem. Parallel-group trials randomise participants once and follow them on separate paths—simple, statistically efficient, and ideal when treatments have lasting effects. Crossover trials let each participant serve as their own control by switching interventions after a wash-out; they slash sample size but demand a reversible outcome and meticulous period-effect checks. Cluster-randomised trials allocate entire wards, clinics, or communities, buffering against contamination when individual randomisation is impractical; the price is a design-effect inflation that must be paid in sample-size calculations. Adaptive trials embed pre-planned interim analyses—dropping futility arms, altering allocation ratios, or picking a winner early. They increase ethical efficiency yet hinge on complex alpha-spending plans and locked analysis codes.
+:::
+
+------------------------------------------------------------------------
+
+## 🔍 Observational Design Equivalents
+
+#### Parallel, crossover, cluster, adaptive — when and why
+
+::: {style="font-size: 0.75em;"}
+📆 **Prospective cohorts**\
+- Follow groups forward in time\
+- Temporal clarity ✅\
+- But: confounding risk ⚠️
+
+🔙 **Case-control studies**\
+- Start with outcomes → look back\
+- Great for rare events\
+- Vulnerable to recall bias + sampling error
+
+📌 **Design drives everything**\
+- Visit schedule\
+- Data-collection timing\
+- Randomisation modules\
+- Realistic level of blinding
+
+🧠 Choose architecture = define REDCap structure
+:::
+
+::: notes
+Against this backdrop sit the observational staples. Prospective cohorts shadow exposed and unexposed groups forward, capturing temporal order but shouldering confounding risk. Case-control studies start with outcomes and work backward—nimble for rare events yet vulnerable to recall bias and control mis-sampling. The architecture you choose dictates everything downstream: visit schedule, data-collection cadence, randomisation needs, and the level of blinding that can realistically be sustained.
+:::
+
+------------------------------------------------------------------------
+
+## 🎲 Randomisation Schemes
+
+#### Block, stratified, minimisation — keeping arms balanced and unpredictable
+
+:::::: {style="font-size: 0.75em;"}
+::::: columns
+::: {.column width="50%"}
+🪙 **Simple randomisation**\
+- Equal chance per participant\
+- ✅ OK in large samples\
+- ❌ Risk of imbalance in small trials
+
+🧱 **Block randomisation**\
+- Fixed-size blocks (e.g. 4, 6, 8)\
+- Keeps totals aligned\
+- 🕵️ Use random block sizes to mask pattern
+:::
+
+::: {.column width="50%"}
+📊 **Stratified randomisation**\
+- Separate blocks per stratum\
+- e.g. site, sex, disease stage\
+- Limit number of strata! Too many = empty blocks
+
+🤖 **Minimisation**\
+- Adjusts allocation in real time\
+- Targets max balance across multiple factors\
+- Add random component to avoid predictability
+:::
+:::::
+::::::
+
+::: notes
+Once the architecture is fixed, randomisation maintains comparability. Simple randomisation—flipping a fair coin—works only when sample sizes are large enough to let probability do its job. For smaller trials we embed blocking: random numbers are dealt in blocks of 4, 6, or 8 so cumulative totals stay neck-and-neck. To protect against clinicians who suspect the block length, employ random block sizes.
+
+Stratified randomisation piles an extra safeguard on top: separate block lists within each level of a prognostic factor such as centre, disease stage, or sex. The strata count must stay modest—over-stratification empties blocks and courts imbalance.
+
+Minimisation is a dynamic algorithm that updates treatment probabilities in real time to minimise imbalance across several factors simultaneously. It achieves laser-sharp balance but trades pure chance for deterministic tuning; therefore you usually add a small random component.
+:::
+
+------------------------------------------------------------------------
+
+## 🛡️ Allocation Concealment
+
+#### Block, stratified, minimisation — keeping arms balanced and unpredictable
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🚫 **Why concealment matters**\
+- Prevents selection bias\
+- Ensures recruiter can’t anticipate next assignment
+
+📍 **Concealment ends only when**\
+- Record saved\
+- Baseline data frozen\
+- Participant irrevocably logged
+:::
+
+::: {.column width="50%"}
+🔐 **How to conceal**\
+- ✅ Centralised web service → REDCap randomisation module\
+- 📦 Opaque, sequentially numbered envelopes (paper fallback)\
+- 📋 Log every reveal:\
+- Date\
+- Time\
+- User\
+- Randomisation ID
+:::
+:::::
+
+::: notes
+Whatever the scheme, allocation concealment is non-negotiable. If the recruiter can guess the next assignment, selection bias seeps in. Secure concealment with a centralised web service—REDCap’s Randomisation module—or with sequentially numbered, opaque, tamper-evident envelopes for paper settings. Log every reveal: date, time, user, and randomisation ID. Concealment ends only after the participant is irrevocably logged and baseline data are frozen.
+:::
+
+------------------------------------------------------------------------
+
+## 🛡️ Bias & Confounding Control
+
+#### Design-level armour, analysis-level fixes
+
+⚠️ Even perfect software can’t fix broken design.\
+Let’s explore the usual suspects—and how to fight them.
+
+🎯 **Selection Bias**\
+- Entry linked to exposure & outcome\
+- 🧱 Shields: inclusion rules, concealed allocation, matched controls\
+- 🔧 REDCap: branching logic + warnings for ineligible participants
+
+🔬 **Information Bias**\
+- From measurement errors (e.g., inconsistent BP readings)\
+- 🧱 Shields: standardised instruments, blinding\
+- 🔧 REDCap: hide fields via role-based access + neutral labels
+
+::: notes
+Even the slickest database can’t rescue a study crippled by bias. So let’s catalogue threats and counter-measures.
+
+Selection bias creeps in when the way participants enter the study is related to both exposure and outcome. Design shield: clear inclusion criteria, concealed allocation, or—for observational work—well-matched control groups. At the REDCap level, that translates to eligibility checks built into branching logic and automated warnings if a user tries to enrol an ineligible participant.
+
+Information bias arises from measurement error—think inconsistent blood-pressure technique. Combat it with standardised instruments and, where possible, blinding. In REDCap you enforce blinding by hiding treatment variables behind user-role permissions and using neutral field labels that give nothing away.
+:::
+
+------------------------------------------------------------------------
+
+## 🕶️ Blinding & ITT Estimands
+
+#### Masking knowledge, preserving balance, powering the question
+
+:::::: {style="font-size: 0.75em;"}
+::::: columns
+::: {.column width="50%"}
+🕵️ **Blinding levels**\
+- *Single*: hides from participants\
+- *Double*: also hides from clinicians\
+- *Triple*: analysts stay blind until lock\
+- 🔧 Use blinded adjudication + objective endpoints\
+- 🔐 REDCap: role-based views hide treatment fields
+:::
+
+::: {.column width="50%"}
+📊 **Intention-to-Treat (ITT)**\
+- Analyse all participants as randomised\
+- Preserves baseline balance\
+- Answers: “What if we offer A vs B?”\
+- ❗ Define estimand early in protocol\
+- PP / AT = sensitivity checks, not primary answer
+:::
+:::::
+::::::
+
+::: notes
+Blinding limits post-allocation bias. Single-blind prevents placebo and reporting effects in participants; double-blind shields clinicians from differential co-interventions; triple-blind extends the veil to data analysts, locking in objectivity until the database is clean. When physical masking is impossible—think surgery vs. sham—use objective endpoints, blinded adjudication committees, and role-based data views to mute observer bias.
+
+The analytic guardrail is the Intention-to-Treat (ITT) estimand: analyse all randomised participants in the group to which they were first assigned. ITT answers the pragmatic question, “What is the effect of offering Treatment A rather than Treatment B in the real world?” Alternative estimands—per-protocol, as-treated—probe explanatory effects but reopen the door to confounding. Decide the primary estimand at protocol time and wire it into the statistical analysis plan.
+:::
+
+------------------------------------------------------------------------
+
+## 📐 Sample-Size Logic
+
+#### Masking knowledge, preserving balance, powering the question
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🧮 **What drives sample size?**\
+- 🎯 Target effect size (clinical first, stats second)\
+- 🅰️ Alpha (Type I error)\
+- 🔋 Power = 1 – β (Type II error)
+
+📦 **Design matters**\
+- Parallel = 2-sided test\
+- Crossover = reduced variance\
+- Cluster = design effect:\
+`1 + (m – 1)ρ`
+:::
+
+::: {.column width="50%"}
+📊 **Adaptive designs**\
+- Interim looks need α-spending\
+- 🧭 O’Brien-Fleming = conservative\
+- ⚖️ Pocock = balanced
+
+📌 **Golden rule**\
+Justify every assumption\
+📁 Link to pilot data or literature\
+💾 Lock calc code → store with protocol
+:::
+:::::
+
+::: notes
+Sample-size logic cements credibility. Start with the targeted effect size—clinical, not just statistical. Combine it with an acceptable Type-I error (α) and power (1 – β). Parallel trials use two-sided tests; crossover trials halve variance by within-subject differencing; cluster trials inflate counts by the design effect 1 + (m – 1)ρ, where m is cluster size and ρ the intracluster correlation. Adaptive and group-sequential designs adjust α spending across interim looks—O’Brien-Fleming for conservatism, Pocock for balance.
+
+Every assumption—effect size, variance, ICC—must trace back to pilot data or literature. Document these origins, lock the calculation code, and store it with the protocol so reviewers can reproduce the numbers stroke for stroke.
+:::
+
+------------------------------------------------------------------------
+
+## 🧠 Bias & Confounding Control
+
+#### Design-level armour, analysis-level fixes
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🔀 **Confounding**\
+- A 3rd variable clouds cause/effect\
+- 🧱 Trials: neutralise via **randomisation**\
+- 📊 Observational: fix with\
+- ➕ Multivariable models\
+- ➗ Stratification\
+- 🧮 Propensity scores
+
+🧩 **REDCap implication**\
+- Capture all plausible confounders at baseline\
+- Missing them = analysis failure later
+:::
+
+::: {.column width="50%"}
+📝 **Mini task** (60 sec)\
+Jot down:\
+1. The biggest confounder in *your* study\
+2. One variable you must collect to adjust for it
+
+🧠 **Takeaway**\
+Design → Instruments → Analysis = one causal chain.\
+Break a link, and inference collapses.
+:::
+:::::
+
+::: notes
+Confounding is the classic third-variable problem. In trials we neutralise it upfront via randomisation; in observational studies we manage it statistically—multivariable regression, stratification, or modern propensity-score methods. Your database design must capture all plausible confounders at baseline; omit them and no amount of modelling will save you.
+
+Quick interactive task: take 60 seconds, jot down the biggest confounder you fear in your own research question and one variable you must collect to adjust for it. We’ll share a couple before moving on.
+
+Remember, bias control is a chain: design decisions feed into data-collection instruments, which feed into analysis code. Break one link and the whole causal inference edifice wobbles.
+:::
+
+------------------------------------------------------------------------
+
+## 🎲 Randomisation & Blinding
+
+#### Creating unbiased treatment allocation and masking knowledge of it
+
+:::::: {style="font-size: 0.75em;"}
+::::: columns
+::: {.column width="50%"}
+🎯 **Randomisation**\
+- Converts confounders → random noise\
+- 🧪 *Simple randomisation*: good in large trials\
+- 📦 *Block randomisation*: keeps arms balanced\
+- 🧬 *Stratified*: ensures balance in key subgroups (e.g. centre, disease stage)
+
+🔐 **Allocation concealment**\
+- Prevents forecasting next assignment\
+- Must precede record creation\
+- Tools:\
+- 🔗 Central web tables\
+- 📨 Opaque envelopes\
+- 🧰 REDCap's Randomisation module
+:::
+
+::: {.column width="50%"}
+📦 **REDCap implications**\
+- Randomisation module: triggers only after eligibility checks\
+- Setup with stratifiers (e.g., site, stage)\
+- Prevents accidental or premature group assignment\
+- Allocation stored securely, invisible pre-randomisation
+:::
+:::::
+::::::
+
+::: notes
+Randomisation is the design tool that converts all unknown nuisance variables into the harmless noise of chance. At its simplest—simple randomisation—each participant has an equal independent probability of landing in any arm. That works well for large trials but risks imbalance in small samples, so we refine it with block randomisation to keep running totals aligned and with stratified randomisation to guarantee balance within key sub-groups such as study centre or disease stage.
+
+Allocation concealment is the administrative flip-side: ensuring the person enrolling participants cannot forecast the next assignment. Without concealment, “randomised” loses its meaning. Centralised web tables, sequentially numbered opaque envelopes, or REDCap’s built-in Randomisation module all serve this purpose by withholding the allocation until eligibility is confirmed and the record is saved.
+:::
+
+------------------------------------------------------------------------
+
+## 🕶️ Randomisation & Blinding
+
+#### Creating unbiased treatment allocation and masking knowledge of it
+
+:::::: {style="font-size: 0.75em;"}
+::::: columns
+::: {.column width="50%"}
+😶 **Levels of blinding**\
+- *Single*: participant unaware\
+- *Double*: participant + investigator unaware\
+- *Triple*: even statistician is blinded
+
+🛠️ **Implementation varies**\
+- 💊 Identical capsules / placebos\
+- 💬 Scripts, sham procedures\
+- 📉 Hide outcome fields from assessors
+:::
+
+::: {.column width="50%"}
+🧰 **REDCap strategies**\
+- Treatment code = hidden variable\
+- Roles:\
+- 👩‍⚕️ Pharmacist = full access\
+- 🧑‍🔬 Assessors = read-only, no allocation view\
+- 🧑‍⚖️ DSMB = partially unblinded via DAG
+
+📌 **Golden rule**\
+Document who sees what, when, and for how long 🔒
+:::
+:::::
+::::::
+
+::: notes
+Blinding (or masking) comes next. We speak of single-blind when participants are unaware of their assignment, double-blind when both participants and investigators are, and triple-blind when the statistician remains in the dark through database lock. Blinding protects against differential behaviour, placebo effects, and assessment bias.
+
+In pharmacological trials blinding is often physical—identical capsules or matched placebos. In device or behavioural studies we lean on sham procedures or standardised scripting. Whatever the strategy, the database must respect the blind: treatment codes are stored in a hidden variable, visible only to an unblinded pharmacist role; outcome assessors are assigned to a read-only role that cannot reveal allocation.
+
+Keep in mind that blinding can be partial. You might blind participants and clinicians but not the safety committee; REDCap accommodates that with Data Access Groups and custom roles. The golden rule is clarity: document precisely who is blinded to what and for how long, and build your electronic workflow so that accidental unmasking is impossible.
+:::
+
+------------------------------------------------------------------------
+
+## 📊 Statistical Analysis Primer
+
+#### Linking design choices to analytical principles
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🎯 **Intention-to-Treat (ITT)**\
+- Analyse by assigned group, no matter what\
+- Preserves randomisation balance\
+- Reflects real-world effectiveness
+
+⚖️ **PP & As-Treated**\
+- Include only compliant/crossover cases\
+- Used as sensitivity checks\
+- ⚠️ Risk: post-randomisation bias
+:::
+
+::: {.column width="50%"}
+📝 **Declare your estimand**\
+- What question is each analysis answering?\
+- Plan it **before** you peek at the data\
+- Document in your SAP (Statistical Analysis Plan)
+:::
+:::::
+
+::: notes
+A well-planned trial or cohort earns nothing until it is analysed in the spirit of its design. We start with the Intention-to-Treat (ITT) principle: analyse every participant according to the group to which they were randomised, regardless of protocol deviations. ITT preserves the prognostic balance achieved by randomisation and delivers a pragmatic estimate of effectiveness.
+
+Per-Protocol (PP) and As-Treated (AT) analyses have their place—typically as sensitivity checks—but they sacrifice some protection against bias because post-randomisation events (non-adherence, crossover) are rarely random. State clearly in the statistical analysis plan which estimand each approach targets.
+:::
+
+------------------------------------------------------------------------
+
+## 🧮 Statistical Analysis Primer
+
+#### Linking design choices to analytical principles
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+📦 **Pick model by outcome type**\
+- 📈 Continuous → t-test, linear models\
+- ✅ Binary → logistic regression, risk ratios\
+- 📊 Ordinal → proportional odds, non-parametric\
+- ⏳ Time-to-event → Kaplan–Meier, Cox
+
+🔄 **Repeated measures** → mixed models, GEE
+:::
+
+::: {.column width="50%"}
+🎯 **Observational studies**\
+- Confounding ≠ randomisation\
+- Adjust with:\
+- ➕ Multivariable regression\
+- 🔁 Propensity score: match / weight / stratify\
+- Key: capture confounders **at baseline**
+
+🔐 **Reproducibility matters**\
+- Scripted code, versioned data\
+- REDCap API = pull both records + codebook\
+- Data + provenance = publishable pipeline
+:::
+:::::
+
+::: notes
+Outcome type dictates the model. Continuous end-points invite t-tests or linear mixed models; binary outcomes use risk ratios or logistic regression; ordinal scales call for proportional-odds or non-parametric methods; time-to-event data rely on Kaplan–Meier curves and Cox proportional hazards. For repeated measures, mixed models or generalised estimating equations handle within-subject correlation without discarding data.
+
+Observational studies substitute randomisation with confounding adjustment. Classical multivariable regression still works, but propensity scores—whether used for matching, weighting, or stratification—offer a transparent, diagnostics-rich framework. The crucial point: adjustment variables must be captured faithfully at baseline. If the database forgets smoking status, no statistical wizardry can reconstruct it.
+
+Finally, every modern analysis pipeline should be reproducible. That means scripted code, version-controlled data, and immutable metadata. When we later export data from REDCap through the API, we will pull both records and the project codebook so that the variable provenance accompanies the numbers into R and onward to publication.
+:::
+
+------------------------------------------------------------------------
+
+## 🧩 Bridge to REDCap Features
+
+#### Translating methodology into concrete build decisions
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🎲 **Randomisation module**\
+- Block / stratified lists\
+- Concealment enforced\
+- Audit trail logs every assignment
+
+🕶️ **Roles & Data Access Groups**\
+- Restrict visibility of treatment fields\
+- Partition access by centre or team\
+- Blinding = system-enforced, not verbal
+:::
+
+::: {.column width="50%"}
+📅 **Longitudinal events & repeat instruments**\
+- Recreate visit schedules\
+- Support repeated measures per subject
+
+📏 **Calculated fields & branching logic**\
+- Real-time eligibility alerts\
+- Enforce protocol compliance live
+
+🔗 **API + Metadata export**\
+- Pull data + codebook\
+- Reproducible ITT / PS analyses in R, Python
+:::
+:::::
+
+::: notes
+We have sketched the methodological scaffolding; now we align it with specific REDCap capabilities. • Randomisation module: hosts block or stratified lists, enforces allocation concealment, records every assignment in the audit log. • User roles & Data Access Groups: implement blinding by restricting who can view treatment fields and by partitioning multicentre data. • Longitudinal events & repeating instruments: mirror visit schedules in cohorts or trials, ensuring time-stamped, evenly structured data. • Calculated fields & branching logic: embed real-time eligibility checks and alert the user if inclusion criteria are violated. • API access and metadata export: guarantee reproducible ITT or propensity-score analyses in external statistical software.
+
+When you begin designing your REDCap project this afternoon, treat these features as levers that make the theoretical ideals operational. The better the fit between study design and system build, the smoother data management, monitoring, and analysis will run.
+
+With that bridge in place we can safely return to our main deck and pick up the thread with regulatory compliance, knowing that the methodological foundation is now secure.
+:::
+
+------------------------------------------------------------------------
+
+## 🛡️ ICH-GCP & Audit Trails
+
+📜 **From guidelines to code**\
+- ALCOA+ = Accurate, Attributable, Legible, Contemporaneous, Original\
+- REDCap implements these via immutable logs\
+- Every change → user, time, IP, old & new values
+
+🔍 **Audit entry example**\
+- `2025-02-03 15:42` — user `lkvedovelli` updated `severity` from "3" to "2"\
+- In DAG `Site-PI`, timestamped & permanent\
+- Deletions? Soft-flag only — never erased
+
+📊 **Why statisticians care**\
+- Protect results from accusations (e.g. outcome switching)\
+- Prove variable history post-lock = reproducibility + trust
+
+::: notes
+\[From guidelines to code — 50 s\] The International Council for Harmonisation’s Good Clinical Practice guideline—ICH-GCP—reads like legal poetry: records must be accurate, attributable, legible, contemporaneous, and original. REDCap operationalises those ALCOA+ adjectives into source code: every CRUD action spawns an audit-log row with user ID, timestamp, IP address, previous value, and new value.
+
+\[Anatomy of an audit entry — 55 s\] Open the log and you’ll see something like: 2025-02-03 15:42:07 — user lkvedovelli — record AE-145 — field severity changed from “3” to “2” in Data Access Group “Site-PI”. Immutable means immutable; only the system can write to that table. Even the super-admin can’t edit—deletions are soft-flags, never purges.
+
+\[Why statisticians should care — 60 s\] Imagine you publish an odds ratio of 2.3, and six months later a peer reviewer suspects outcome switching. Your defense? Pull the audit trail, filter for field-name changes, show that the primary outcome variable has been stable since database lock. Suddenly, accusations deflate. Reproducibility isn’t just code; it’s provenance.
+:::
+
+------------------------------------------------------------------------
+
+## 🛡️ ICH-GCP & Audit Trails
+
+📁 **Real-world war story**\
+- EMA inspector asked: “All toxicity downgrades?”\
+- Filter log → export CSV → justify with source\
+- REDCap = saved days of panic
+
+🧪 **Tomorrow’s hands-on**\
+- Apply filters, export PDF for TMF\
+- Generate signed hash → tamper-evident trail
+
+🎨 **Compliance meets UX**\
+- REDCap hides complexity\
+- You focus on SOPs & governance — system handles crypto
+
+::: notes
+\[Inspector visit war story\] Story time: During a phase III oncology trial, an EMA inspector marched in unannounced. First request: “Show me every time a dose-limiting toxicity was downgraded.” In REDCap we can filter the log by field ID, exported CSV, highlighted two events, and justified them with source adjudication. The inspector nodded, closed the laptop, and moved on. Without that log you’d have scrambled for three days.
+
+\[Practical hands-on preview\] Tomorrow you’ll navigate the log UI, set filters, and export a PDF for your TMF. We’ll also generate a signed hash so the file is tamper-evident—belt and braces.
+
+\[Regulation meets UX\] Compliance needn’t be painful. Vanderbilt’s developers hide the legal plumbing behind a friendly GUI. Your job is to understand the stakes, locate the levers, and document the process in your SOPs. The system handles the hustles so you can focus on science.
+
+\[Transition\] Now that we’ve covered scientific integrity, let’s pivot to privacy: the European regulation everyone loves to quote—GDPR.
+:::
+
+------------------------------------------------------------------------
+
+## 🧾 GDPR Essentials
+
+### (1/2) – Legal Basis & Key Principles
+
+⚖️ **GDPR ≠ ethics approval**\
+- Personal data = any info on identifiable person\
+- Ethics ≠ lawful basis → both required!
+
+📌 **Lawful bases for research**\
+- ✅ Consent: clear, revocable\
+- 🏛️ Public-interest task: requires transparency & proportionality\
+- Choose early → changing mid-study = bureaucratic nightmare
+
+📉 **Data minimisation**\
+- Collect only what’s needed\
+- e.g. birth **month** \> full date\
+- REDCap: tag identifiers → auto-stripped in de-ID exports
+
+🎯 **Purpose limitation**\
+- Data use must match original aim\
+- REDCap helps enforce via role-based access
+
+::: notes
+\[Setting the stage\] If ICH-GCP safeguards science, GDPR protects people. Article 4 defines personal data broadly: any information relating to an identifiable natural person. Researchers sometimes assume “I have ethics approval, so GDPR doesn’t apply.” Incorrect. Ethics ≠ lawful basis. We must satisfy both.
+
+\[Six lawful bases\] Research typically rides on either consent or public-interest task. Consent sounds simple but carries withdrawal rights; public-interest tasks demand proportionality and transparency. Decide your basis early; changing mid-study is bureaucratic quicksand.
+
+\[Principle 1: Data minimisation\] Collect only what you need, no more. If birth-month suffices, skip day. In REDCap you can tag a field as Identifier so it’s automatically stripped from de-identified exports. During today’s lab you’ll mark “Email” and “Phone Number” as identifiers, then watch them vanish when you choose “De-Identified CSV.”
+
+\[Principle 2: Purpose limitation\] Your study on Mediterranean diet can’t suddenly pivot to marketing health insurance. REDCap’s role-based access helps: statisticians see the whole dataset; external collaborators get a limited instrument. Separation of purpose through separation of access.
+:::
+
+------------------------------------------------------------------------
+
+## 🧾 GDPR Essentials
+
+### (2/2) – Practice, Retention & Rights
+
+⏳ **Storage limitation**\
+- Define retention period (e.g. 7 years)\
+- REDCap: auto-expunge for sensitive data (e.g. PDFs after tokenisation)
+
+🧍 **Data subject rights**\
+- Access, rectify, erase, restrict, port\
+- REDCap exports full record on request\
+- Lab: impersonate “Patient 001” → simulate erasure
+
+📋 **DPIA templates**\
+- High-risk studies → fill pre-approved DPIA\
+- Store in TMF = sleep better 😴
+
+::: notes
+\[Principle 3: Storage limitation & auto-expunge\] You must define how long you’ll retain data. REDCap’s auto-expunge lets you schedule deletion of raw survey PDFs after tokenisation—useful for sensitive mental-health diaries. In the lab, try to configure a seven-year retention cron job.
+
+\[Data-subject rights workflow\] GDPR grants participants the right to access, rectify, erase, restrict, and port their data. REDCap can’t magically redact a published paper, but it can export everything a subject has provided—timestamps, IP, metadata—in one click. During lab ask a friend to impersonate “Patient 001,” request erasure, and verify log entries showing compliance.
+
+\[DPIA & templates\] High-risk studies trigger a Data Protection Impact Assessment. Our university’s DPO pre-approved a DPIA template—link in your workbook. Fill it out, store it in your Trial Master File, and sleep better.
+
+\[Pause\] Privacy boxes checked, we move to a newer acronym shaping data culture: FAIR.
+:::
+
+------------------------------------------------------------------------
+
+### 📂 FAIR Data Principles & Statistical Reproducibility
+
+#### Findable, Accessible, Interoperable, Re-usable — bridging design and analysis
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+📚 **Context**\
+- FAIR coined in *Nature* (2016)\
+- Funders & journals enforce it\
+- Not a slogan—FAIR = better research ROI
+
+🔎 **Findable & Accessible**\
+- Persistent IDs (e.g., DOIs)\
+- REDCap: Codebook export (JSON)\
+- Store metadata + CSV in repositories
+
+🔗 **Interoperable**\
+- Use vocabularies (e.g., SNOMED CT)\
+- REDCap plugins pull public ontology codes\
+- Enables registry merging with zero reformatting
+:::
+
+::: {.column width="50%"}
+♻️ **Re-usable**\
+- Add a license: CC-BY, ODC-BY, or DUA\
+- Track provenance\
+- Include license in metadata + publication
+
+📊 **Statistical tie-in**\
+- API pipelines = reproducible by design\
+- Merge metadata + records on the fly\
+- Knit RMarkdown reports citing repo DOI
+
+🌍 **Real-world example**\
+- COVID-19 Data Portal = FAIR in action\
+- Global reuse of viral sequences with metadata
+:::
+:::::
+
+::: notes
+\[Cultural context\] In 2016 a Nature paper coined the FAIR principles; funding agencies leapt onboard; journals followed suit. FAIR isn’t a moral slogan—it’s a pragmatic recipe for maximising research ROI.
+
+\[Findable & Accessible\] Assign globally unique, persistent identifiers to both datasets and metadata. In REDCap, the Codebook export produces a machine-readable JSON with field names, types, validation rules, and branching logic. Store that alongside the raw CSV in an institutional repository; future you—or some meta-analyst in 2032—will thank you.
+
+\[Interoperable\] Map variables to controlled vocabularies. Instead of a free-text fever field, use SNOMED CT 386661006. REDCap’s auto-completion plugin can pull codes from public ontologies; you’ll try it tomorrow. Interoperability means your dataset can merge with an external registry without three weeks of recoding agony.
+
+\[Re-usable\] Re-use demands provenance and licensing. Your dataset with no license is legally a black hole. Choose CC-BY 4.0 or ODC-BY for open data or a Data Use Agreement for restricted data. Embed the license in the repository metadata and mention it in your publication.
+
+\[Statistical rigour tie-in\] From a statistics lens, FAIR aligns with reproducible pipelines. When your script pulls via API and merges with metadata on the fly, the analysis is self-documenting—no hidden look-up tables. In the lab we’ll knit an R Markdown report that cites the exact repository DOI, satisfying journal reproducibility checklists.
+
+\[Inspirational example\] The COVID-19 Data Portal is a FAIR success story: researchers uploaded viral sequences with rich metadata, enabling instant phylogenetic analysis worldwide. Imagine similar velocity for your immunology thesis.
+
+\[Transition\] FAIR sets expectations; let’s see how REDCap’s architecture supports them.
+:::
+
+------------------------------------------------------------------------
+
+### 🏗️ REDCap Architecture & Deployment Models
+
+#### LAMP stack, security layers, single vs multi-tenant
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+💻 **Stack overview**\
+- LAMP: Linux, Apache, MySQL, PHP\
+- JavaScript-heavy UI\
+- Nginx: reverse proxy + SSL + HTTP/2 + WAF
+
+🧅 **Security layers**\
+- 🔐 **Network**: firewalls (443/22 only)\
+- 🖥️ **Server**: OS patches, SELinux, fail2ban\
+- 🧩 **App**: role-based access, CSRF tokens\
+- 🗄️ **DB**: AES-256, strict SQL modes\
+- Layering = slowdown + detection time
+:::
+
+::: {.column width="50%"}
+🏢 **Single vs Multi-tenant**\
+- 🎯 Single: 1 VM per study (CRO style)\
+- 🏫 Multi: 1 instance, many projects (university style)\
+- ✅ Easier patching, unified logs\
+- ⚠️ Risk: resource contention, change freezes
+
+📶 **High availability**\
+- MySQL replication\
+- Load-balanced web heads\
+- S3-compatible file storage\
+- Docker/K8s = blue-green deploys (15.x+)
+
+🧠 **Why it matters**\
+- API timeout? → DB locks\
+- Upload fails? → object store perms\
+- Speak sysadmin → escalate faster
+:::
+:::::
+
+::: notes
+\[Stack overview\] Under the hood, REDCap runs on the classic LAMP quartet—Linux, Apache, MySQL, PHP—plus JavaScript sprinkled liberally across the UI. Add Nginx as a reverse proxy, and you gain SSL termination, HTTP/2, and Web Application Firewall hooks.
+
+\[Security layers\] Security is onion-layered:
+
+Network: firewalls restrict traffic to ports 443 and 22.
+
+Server: OS patching, fail2ban, SELinux.
+
+Application: role-based access, parameterised queries, CSRF tokens.
+
+Database: AES-256 encryption at rest, strict SQL modes. Each layer slows attackers and buys detection time.
+
+\[Single vs multi-tenant\] Pharma CROs often deploy single-tenant: one VM per study, air-gapped, meeting sponsor SOPs. Universities favour multi-tenant: one beefy instance hosting hundreds of projects, segregated by Data Access Groups. Pros: simplified patching, unified audit trail. Cons: potential resource contention, stricter change-control windows.
+
+\[High-availability setups\] Large sites adopt master-slave MySQL replication, load-balanced web heads, and off-site S3-compatible storage for uploaded files. Docker and Kubernetes are now official in the 15.x installer, making blue-green deployments feasible—zero downtime upgrades.
+
+\[Why you should care\] Even if you never touch the server, architectural literacy helps troubleshoot. API exports timing out? Might be database locks. File-upload errors? Check object storage permissions. When you can articulate the problem in sysadmin language, tickets jump the queue.
+
+\[Segue\] Architecture defines where data flow; permissions define who may see them. That’s our next stop.
+:::
+
+------------------------------------------------------------------------
+
+### 🛡️ Roles & Permissions: Secure Project Design
+
+#### Minimum-necessary access, principle of least privilege
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+👤 **Human factor**\
+- Weakest link = user\
+- REDCap: User Rights = rule-based control
+
+📋 **Role anatomy**\
+- Permissions: export, import, API, logging…\
+- Roles = templates assigned to users\
+- Fine control via DAGs + field-level logic
+
+🚫 **Least privilege**\
+- Only assign what’s needed\
+- Coordinator? → no export\
+- Real case: intern + export rights → PHI leak
+:::
+
+::: {.column width="50%"}
+📊 **RACI matrix workflow**\
+- Draft RACI: Responsible, Accountable, etc.\
+- Map to roles → e.g.:\
+- Statistician → de-ID export only\
+- Monitor → view/verify\
+- PI → full DAG rights\
+- Save matrix PDF in REDCap repo
+
+🧪 **Hands-on lab**\
+- Create & test 3 roles\
+- Impersonate → observe UI limits:\
+greyed buttons, hidden fields, denied alerts
+
+🧹 **Offboarding & audits**\
+- One-click user removal\
+- Monthly audit script detects ghost users
+:::
+:::::
+
+::: notes
+\[Human factor intro\] Cyber-security textbooks love to say the weakest link is the human. In REDCap, User Rights is the gatekeeper that turns messy human realities into precise checkboxes.
+
+\[Role anatomy\] A Role bundles permissions: data export, data import, API usage, survey design, logging, randomisation—all toggled on or off. Think of roles as templates; you assign them to users much like GitHub teams inherit repo rights. A role can include granular field-level privileges via Data-Access Groups or user-level DAG assignments.
+
+\[Least-privilege principle\] Grant only what is necessary. If a coordinator enters data but never analyses, they don’t need Data Export. Why? Limiting surface area reduces accidental breaches. During a real-world breach investigation, we discovered that an intern with export rights downloaded PHI to a personal laptop. Lesson learned: rights mismatch, not malicious intent, caused the incident.
+
+\[RACI matrix workflow\] Start by drafting a RACI matrix—Responsible, Accountable, Consulted, Informed—for each project task. Map the matrix to roles: Statistician (Responsible for analysis, Export rights on de-identified data), Monitor (Consulted, View & Verify only), Site PI (Accountable, full rights within DAG). REDCap lets you save the matrix PDF in the File Repository—instant documentation for auditors.
+
+\[Hands-on plan\] In today’s lab, you’ll create three roles, assign them to classmates, then impersonate each account in a split-screen exercise. Watch how the interface morphs: greyed-out buttons, hidden forms, “permission denied” alerts. Experiencing the constraints firsthand beats any lecture.
+
+\[Offboarding & audits\] Roles also streamline offboarding. One click removes a departing RA from all studies. Monthly audit scripts—cron jobs that compare HR rosters to active user lists—catch ghost accounts. Tomorrow I’ll share a Bash snippet you can adapt.
+:::
+
+------------------------------------------------------------------------
+
+### 🧰 Key REDCap Capabilities
+
+#### The functions that save time and protect data
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🛠️ **Online Designer**\
+- Build forms with clicks, not code\
+- Add validation & logic visually\
+- Use Action Tags (@HIDECHOICE, @PLACEHOLDER…) for instant tweaks
+
+🎲 **Randomisation module**\
+- Upload blocked/stratified lists\
+- Allocation concealment built-in\
+- Every assignment logged in audit trail
+
+📅 **Longitudinal + Repeating Instruments**\
+- Model visit schedules\
+- Track repeated measures with timestamps
+:::
+
+::: {.column width="50%"}
+📩 **Survey Queues + Alerts**\
+- Release forms only when due\
+- Auto-reminders based on logic\
+- Reduce noise, increase compliance
+
+🧑‍💼 **Governance tools**\
+- Roles & DAGs = least privilege by design\
+- Audit log = regulatory gold standard\
+- Immutable, searchable, exportable
+
+🧠 **The real power?**\
+- These tools don’t change often\
+- Learn them once → sustain studies for years
+:::
+:::::
+
+::: notes
+Rather than chase version numbers, focus on the enduring capabilities that make REDCap a research workhorse. Start with the Online Designer—the point-and-click canvas where you build instruments, apply validation, and preview logic without touching SQL. Pair it with Action Tags such as @HIDECHOICE or @PLACEHOLDER to fine-tune behaviour in seconds.
+
+Next is the Randomisation module: upload a blocked or stratified list, set allocation concealment, and let REDCap stamp every assignment into the audit trail. No spreadsheets, no envelope miscounts.
+
+Longitudinal events and repeating instruments turn a flat form into a visit schedule; add Survey Queues to release questionnaires exactly when a visit opens, and Alerts & Notifications to remind participants or coordinators only when conditions demand it.
+
+Governance holds it together. User roles and Data Access Groups enforce the principle of least privilege, while the immutable audit log underwrites every data-integrity claim you will make to regulators or journal reviewers. These core pieces rarely change; master them once and you can maintain studies for years without chasing every incremental update.
+:::
+
+------------------------------------------------------------------------
+
+## 🧱 Online Designer Deep Dive
+
+#### Building forms, validations, and logic with confidence
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🧩 **Start with structure**\
+- Use **short, clear variable names** (e.g. `weight_kg`)\
+- Labels = human-readable\
+- Add **Field Validation**\
+- Ranges (e.g. age 0–120)\
+- Patterns (e.g. email, dates)
+
+🌿 **Branching logic**\
+- Tailor form flow dynamically\
+- E.g. pregnancy questions only if `sex = Female`\
+- Group conditions + use inline comments for clarity
+:::
+
+::: {.column width="50%"}
+🧮 **Calculated fields**\
+- Auto-derive: BMI, age, dose interval...\
+- Test with edge cases + dummy records\
+- Watch for divide-by-zero + date bugs
+
+🎛️ **Action Tags**\
+- `@DEFAULT` → pre-fill today’s date\
+- `@CHARLIMIT` → control free text\
+- `@NONEOFTHEABOVE` → force exclusive options\
+- Micro-tweaks = macro time savings
+:::
+:::::
+
+::: notes
+The Online Designer is where most of your build hours will live, so fluency here pays compound interest. Begin with a clear naming convention: short, mnemonic variable names (weight_kg, visit_date) and human-readable labels. Use Field Validation to reject impossible entries at the door—dates outside study windows, numeric ranges, e-mail patterns.
+
+Branching logic personalises the form flow: pregnancy questions only if sex = Female; smoking-cessation modules only for current smokers. Keep expressions readable by grouping conditions and adding inline comments.
+
+Calculated fields let the database perform on-the-fly derivations—BMI, age at enrolment, dosing windows—so downstream analysis starts clean. Always test with dummy records and extreme values to catch divide-by-zero or date-format traps.
+
+Finally, lean on Action Tags for polish: @DEFAULT to pre-fill today’s date, @CHARLIMIT to cap free text, @NONEOFTHEABOVE to enforce mutually exclusive choices. These micro-tweaks translate into fewer edit queries and happier coordinators.
+:::
+
+------------------------------------------------------------------------
+
+## ✍️ Electronic Consent Workflow
+
+#### Collecting signatures and archiving evidence
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+📨 **Participant-facing flow**\
+- Invitation via email → links to e-Consent survey\
+- Info sheet + mandatory comprehension checks\
+- Signature with mouse or finger\
+- REDCap auto-stamps:\
+- 🕒 Timestamp\
+- 🌍 IP address\
+- 🖥️ User agent
+
+📄 **PDF archival**\
+- Submission = read-only PDF\
+- Stored in File Repository\
+- Access restricted by role
+:::
+
+::: {.column width="50%"}
+👥 **Countersignatures**\
+- Investigator/witness sign separately\
+- Different instrument = audit trail preserved\
+- Prevents edits to participant data
+
+🔐 **Enhanced assurance (optional)**\
+- OTP via email/SMS\
+- Manual ID check before survey access\
+- All actions logged for inspectors
+
+📋 **Bonus**\
+- End-to-end traceability\
+- No lost forms, no scanning, no guessing
+:::
+:::::
+
+::: notes
+Electronic consent moves the signature process from clipboards to secure browsers without sacrificing traceability. A typical flow begins with an invitation e-mail that links to a survey instrument marked as e-Consent. Participants read the information sheet, encounter mandatory comprehension checks, then type their name and sign with mouse or finger.
+
+On submission REDCap stamps a timestamp, IP address, and user agent into metadata and generates a read-only PDF that lands in the File Repository. Role-based permissions ensure only approved staff can view or download that file. Countersignatures—by investigators or witnesses—are handled in a separate instrument tied to the same record, preserving the audit trail while preventing accidental edits to the participant portion.
+
+When local regulations demand extra assurance, add a one-time passcode sent by e-mail or SMS, or require staff to verify identity documents before releasing the survey link. All actions—link creation, OTP validation, signature capture—flow into the audit log, so you can reconstruct the chain for any inspector without scrambling through paper folders.
+:::
+
+## 🔔 Alerts & Notifications
+
+#### Reminders, escalation, basic logic
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🛠️ **Current capabilities (v11.1.15)**\
+- Trigger on single condition (e.g. form complete)\
+- Send email or survey link\
+- Logic limited to same-record fields
+
+📅 **Basic reminder example**\
+- `[visit_complete] = 0`\
+- Trigger 1 day after `[visit_date]`\
+- Email to `[email]`: “Your diary is due”\
+- Repeat every 24h up to N times
+
+🚨 **Escalation workaround**\
+- Chain alerts:\
+- 1st → participant\
+- 2nd → coordinator (later delay)\
+- Not elegant, but functional
+:::
+
+::: {.column width="50%"}
+🚀 **Coming in v15**\
+- Nested `IF / AND / OR` logic\
+- SMS + Slack webhooks\
+- Business-hour windows\
+- Alert log dashboard\
+- 📣 Flag this as upgrade-worthy
+
+🎨 **HTML styling (v11)**\
+- Toggle Rich Text\
+- Use inline CSS + variables (`[first_name]`)\
+- Test rendering in multiple mail clients
+
+🧪 **Lab task today**\
+- Build 3-day overdue alert\
+- Trigger by backdating `[visit_date]`\
+- Use your own email to receive it
+
+📜 **GDPR reminder**\
+- Add opt-out: “Reply STOP to…”\
+- Store opt-out flag to silence future alerts
+:::
+:::::
+
+::: notes
+\[Capabilities\] The Alerts & Notifications tool is present but simpler than the new rule engine. You can trigger on a single condition (“When Instrument X is complete”) and send an e-mail or push to a survey link. Logic can reference fields from the same record only.
+
+\[Designing a basic reminder\] Example: If \[visit_complete\] = 0 one day after \[visit_date\], send an e-mail to \[email\] with the text “Your diary is due.” You set the delay in hours and can repeat every 24 h up to N times.
+
+\[Escalation workaround\] Need escalation? Chain two alerts: the first to the participant, the second to the coordinator, each with its own delay. Not elegant, but works.
+
+⏩ Future (v15) – Rule engine & webhooks — 60 s In v15 you’ll get nested IF/AND/OR logic, SMS, Slack webhooks, business-hour windows, plus an Alert Log dashboard. Flag this as a productivity upgrade when you lobby for the jump.
+
+\[HTML templates now\] Even in 11 you can craft decent-looking e-mails: toggle Rich Text, paste inline CSS, pipe variables \[first_name\]. Test in Outlook and Gmail; some styles strip.
+
+\[Demo pointer\] Today’s lab task: build a 3-day overdue alert and watch it trigger instantly by back-dating \[visit_date\]. Use your own e-mail so the message feels real.
+
+\[Good practice note\] Respect GDPR: always include a short opt-out (“Reply STOP to…”) and store that flag to silence further alerts.
+
+\[Segue\] Alerts usually link to surveys queued over time—let’s look at those.
+:::
+
+------------------------------------------------------------------------
+
+## 🧭 Participant Engagement Strategies
+
+#### Deliver the right questionnaire at the right moment
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🎯 **Why engagement matters**\
+- Longitudinal success = timely participation\
+- Trigger surveys *only when relevant*\
+- Calendar date\
+- Biological milestone\
+- Prior form completed\
+- Minimise cognitive load → better data, less fatigue
+:::
+
+::: {.column width="50%"}
+⚙️ **What you need**\
+- 🗺️ Schedule map\
+- 🧪 Eligibility rules\
+- 📬 Automated nudges (e.g. REDCap, web app, mail-merge)
+
+💡 **Core logic**\
+- `IF condition = true THEN invite`\
+- Else → wait\
+- Avoid:\
+- 🔄 Flooding with forms\
+- 😶 Silence (missed data)
+:::
+:::::
+
+::: notes
+Long studies succeed or fail on participant engagement. The goal is to release surveys or diaries only when they are relevant and not a minute sooner. Whether you trigger a form with a calendar date, a biological milestone, or the completion of a previous questionnaire, the principle is identical: respect the participant’s timeline and minimise cognitive load.
+
+Behind the scenes you need three ingredients: a schedule map, a set of eligibility rules, and an automated messenger that nudges only when rules are met. The software can be REDCap, a custom web app, or even a mail-merge script—what matters is the logic: if condition true then invite, otherwise wait. Getting the logic right at design stage prevents the two cardinal sins of follow-up studies: flooding and forgetting.
+:::
+
+------------------------------------------------------------------------
+
+## 🎼 Orchestrating Study Timelines
+
+#### From single visits to repeated measures and long horizons
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🎵 **Design as a musical score**\
+- Single visit = one-bar riff\
+- Longitudinal study = symphony
+
+❓ For each time-point:\
+- When does it **open**?\
+- When does it **close**?\
+- Who must **act**?
+:::
+
+::: {.column width="50%"}
+📅 **Repeated measures**\
+- e.g. Daily pain diaries, weekly glucose logs\
+- Don’t duplicate forms—abstract them\
+- Use 1 form × many dated instances\
+- Set cadence + stop rule in design
+
+📍 **Real-world anchors**\
+- Schedule relative to events\
+- Surgery +7 days\
+- Term start −1 week\
+- Anchors = resilience against drift
+:::
+:::::
+
+::: notes
+Think of a study as a musical score. Single-visit designs are one-bar riffs; longitudinal cohorts are symphonies with recurring motifs. Each time-point must be defined by three questions: When does it open? When does it close? Who must do what?
+
+Repeated daily or weekly measures—pain diaries, glucose logs—add complexity because volume multiplies. Rather than copy a form 90 times, abstract the concept: one template, many instances, each stamped with a date. Any data-capture platform worth its salt can represent that abstraction; what matters is that you, the designer, specify the cadence and the stop rule.
+
+Finally, link visits to real-world anchors: surgery date + 7 days, school term start − 1 week. Anchoring keeps schedules resilient when individual timelines drift.
+:::
+
+------------------------------------------------------------------------
+
+## 🔄 Data Integration & Reproducible Pipelines
+
+#### Moving data safely from capture to analysis
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🧮 **Beyond the database**\
+- Data lives on in R, Python, SAS…\
+- Build bridges:\
+- Machine-readable exports\
+- Traveling metadata\
+- Full audit trail
+
+📤 **Scripted, not manual**\
+- Use API tokens for secure pulls\
+- Or schedule exports if no API\
+- Avoid drag-and-drop = drift risk
+:::
+
+::: {.column width="50%"}
+📁 **Reproducibility recipe**\
+- Raw data + codebook\
+- Commit both to version control\
+- Same variable set → same result
+
+📌 **Best practice**\
+- Automate every step\
+- Document everything\
+- Re-run = Reproduce without guessing
+:::
+:::::
+
+::: notes
+A database is only half the journey; the other half lives in your statistical environment—R, Python, SAS. You need a friction-free bridge: export formats that machines can read, metadata that travel with the numbers, and an audit trail that documents every touch.
+
+Aim for scripted pulls—API calls, scheduled exports—so the analyst receives exactly the same variable set every run. Pair the raw data with the codebook or dictionary, commit both to version control, and your pipeline becomes reproducible end-to-end. If the capture platform offers a token-based API, use it; if not, automate a secure download. Either way, avoid manual drag-and-drop, which invites silent drift.
+:::
+
+------------------------------------------------------------------------
+
+## ✅ Data-Quality Mindset
+
+#### Prevent, detect, resolve
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🛡️ **Prevent**\
+- Validation ranges (e.g. age 0–120)\
+- Required fields\
+- Clear, user-friendly instructions\
+- Smart form flow via branching logic
+
+🔍 **Detect**\
+- Outlier checks\
+- Missing values\
+- Internal consistency rules (e.g. diastolic \< systolic)\
+- Real-time vs batch (nightly) scan logic
+:::
+
+::: {.column width="50%"}
+🔧 **Resolve**\
+- Track queries systematically\
+- Assign resolution responsibility\
+- Close the loop: fix + prevent recurrence
+
+📋 **Best practice**\
+- Write edit-check specs *with* the CRF\
+- Decide timing (real-time vs delayed)\
+- Log all queries & resolutions → protect analysis
+:::
+:::::
+
+::: notes
+High data quality is a three-step rhythm. Prevent errors at entry with validation ranges, mandatory fields, and clear instructions. Detect what slips through using systematic rules—outliers, missingness, logical inconsistencies. Resolve by tracking queries, assigning responsibility, and closing the loop so the same error cannot recur.
+
+The exact menu names differ across platforms, but the workflow is universal. Draft your edit-check specification when you draft the case-report form. Decide which rules must fire in real time and which can wait for a nightly scan. Most importantly, record every query and its answer; unresolved questions metastasise at analysis time.
+:::
+
+------------------------------------------------------------------------
+
+## 🧩 Extending Your Platform
+
+#### When core features aren’t enough
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🛠️ **Why extend?**\
+- Barcode printing\
+- QR-code generation\
+- Custom dashboards\
+- APIs to external registries\
+- Integrations (e.g. lab systems)
+
+🔗 **Preferred architecture**\
+- Modular:\
+- Plugins\
+- External modules\
+- REST hooks\
+- No need to rewrite core
+:::
+
+::: {.column width="50%"}
+🔒 **Before you install…**\
+Apply 3 filters:\
+1. 🔐 **Security** – Follows best practices?\
+2. 🔄 **Maintenance** – Still supported?\
+3. ♻️ **Reversibility** – Can you roll it back?
+
+🧪 **Best practice**\
+- Test in sandbox\
+- Pin the version\
+- Document the rationale
+:::
+:::::
+
+::: notes
+No single system covers every research niche. Eventually you will need a barcode printer, a QR-code generator, or a custom dashboard. The safest route is a modular architecture—plugins, external modules, or REST hooks—so new functionality bolts on without rewriting the core.
+
+Before installing anything, apply three filters: Security (does the code follow best practices?), Maintenance (is someone updating it?), Reversibility (can you disable it without data loss?). Treat add-ons like any other software dependency: test in a sandbox, pin the version, document the rationale.
+:::
+
+------------------------------------------------------------------------
+
+## 📚 Governance & Documentation
+
+#### Policies that outlive personnel
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🛡️ **Governance proves compliance**\
+- Technology enables it, but policy sustains it\
+- Draft core SOPs for:\
+- Project lifecycle\
+- User rights\
+- Backups\
+- Change control\
+- Incident response
+
+📂 **How to store**\
+- Version-controlled repository (e.g. Git)\
+- Review yearly + document updates
+:::
+
+::: {.column width="50%"}
+👥 **Training & traceability**\
+- Track who was trained on what + when\
+- Logs = audit defence
+
+⚖️ **Regulatory mindset**\
+- Auditors don’t expect perfection\
+- They expect **prevent–detect–correct** systems
+
+📌 Governance = operational memory\
+- Outlives roles, laptops, staff turnover
+:::
+:::::
+
+::: notes
+Technology enables compliance, but governance proves it. Formalise a lightweight bundle of SOPs: project lifecycle, user-rights management, backups, change control, incident response. Store them in a version-controlled repository and review annually.
+
+Couple governance with training records—who has been trained on what and when. Auditors rarely fault a site for an honest mistake; they fault it for not having a procedure to prevent, detect, and correct that mistake.
+:::
+
+------------------------------------------------------------------------
+
+## ⚠️ Common Pitfalls & How to Avoid Them
+
+#### Lessons learned so you don’t learn them the hard way
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🧱 **Over-engineering**\
+- Too much branching = confusion\
+- 💡 Solution: keep logic lean & testable
+
+🕵️ **Role creep**\
+- Permissions accumulate unchecked\
+- 💡 Solution: schedule access reviews regularly
+
+📉 **Spreadsheet escapes**\
+- “Just one fix in Excel…” → data fragmentation\
+- 💡 Solution: edit in REDCap or not at all
+:::
+
+::: {.column width="50%"}
+🌀 **Drifting definitions**\
+- Variable names change mid-study\
+- 💡 Solution: freeze the data dictionary post go-live\
+→ version changes formally
+
+📪 **Silent automation failure**\
+- Alerts break quietly\
+- 💡 Solution: route delivery logs to:\
+- a dashboard or\
+- weekly email digest
+:::
+:::::
+
+::: notes
+• Over-engineering: a 30-field form does not need four layers of branching logic. Keep it simple. • Role creep: people accumulate permissions but never lose them. Schedule periodic access reviews. • Spreadsheet escapes: exporting to Excel for quick fixes fragments the source of truth. Edit in the system or not at all. • Silent drifting definitions: variable names change mid-study. Freeze the data dictionary after go-live and version any amendments. • Unmonitored automations: alerts can fail silently. Route delivery logs to a dashboard or at least a weekly e-mail summary.
+:::
+
+------------------------------------------------------------------------
+
+## ✅ Wrap-Up & Next Steps
+
+#### From concept to compliant, reproducible data
+
+::::: {style="font-size: 0.75em;"}
+::: {.column width="50%"}
+🧭 **Where we’ve been** - Study architectures - Bias control & blinding - Power & sample size - Governance & permissions - Pipelines & reproducibility - REDCap in practice
+
+🧠 **Core theme:**\
+
+*Intentional design beats*\
+*accidental configuration*
+:::
+
+::: {.column width="50%"}
+🛠️ **Your next move**\
+- Pick one improvement this week:\
+- Refine an eligibility rule\
+- Draft a real-time edit check\
+- Clean up role permissions
+
+📎 **Resources**\
+- Links + hand-out\
+- Slides + lab files\
+- Contact info included
+
+🙏 **Thank you!**\
+*May your data be clean,*\
+*your analysis reproducible,*\
+*and your reviewers impressed.*
+:::
+:::::
+
+::: notes
+We began with study architectures, travelled through bias control, blinding, power, governance, and finished with practical data-management principles. The thread running through it all is intentional design: every form field, user role, and line of code must serve a methodological purpose.
+
+Your homework is simple: choose one idea—maybe refining your eligibility logic or drafting a real-time edit check—and implement it in your own project this week. Small, deliberate improvements multiply over a study’s lifetime.
+
+Resources and contact details are in the hand-out. Thank you for your attention, and may your data be clean, your analysis reproducible, and your reviewers impressed.
+:::
